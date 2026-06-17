@@ -6,8 +6,9 @@
 // Configuration
 const CONFIG = {
     COLLECTION_ID: '64338985-40a0-4efc-a4aa-baadefe08ef1',
+    TEMPLATE_ID: '0d519af5-01e2-4bb3-b8e1-72fd95b03a01',
     PROJECT_ID: '255LvC7vjfDhmTSBXcAtFckaoRAgi8WikkukRzgJ1jyjwbCs5K1uYiNJhfGx8dEK9oq2qcj7zY8ByJHHuizrCm5VffooCu3x9Q8vn27kYZZJB6rCrZ3ThFhUM56cvxQJKNQe39eiYH4z3T7aTGcAyFUQtJfS2sFHtxvAHroR6oT56xRbu75wow51XGtALff634KcjzbMNKJdCQFLJ2GcXZz',
-    SERVER_KEY: 'sk_production_5izAun5aBHh4wDg9U6EdDWoNBsfkGYABJ8ophKaS6GhSXwyN22XXQ7HdnNzEq61pr3u9ikhkNKzPuTZsGZ6euNWj1GCvWTkkFnN4scwoxGoeLniSBzqfkJpZhZCemgUk9xLwXHVhMBV7DEdmWNBABGpGmx4zsxFWYsM7j7c8YQYBMKu6PBBbxDJArntLYNKb4KZ7yoxVMc8DP85iWTmQodEJ',
+    SERVER_KEY: '***',
     CROSSMINT_ENV: 'production',
     API_BASE: 'https://www.crossmint.com/api/2022-06-09',
     PRICE: '$7.00'
