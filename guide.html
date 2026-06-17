@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Easy Wallet Guide — Everlit Candle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .guide-content { max-width: 680px; margin: 0 auto; padding: 120px 24px 80px; }
+        .guide-content h1 { margin-bottom: 16px; }
+        .guide-intro { font-size: 1.125rem; color: var(--text-secondary); margin-bottom: 48px; }
+        .guide-section { margin-bottom: 48px; }
+        .guide-section h2 { margin-bottom: 16px; font-size: 1.5rem; }
+        .guide-section p { margin-bottom: 16px; }
+        .wallet-option {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .wallet-option h3 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 1.125rem;
+        }
+        .wallet-option h3 i {
+            color: var(--accent);
+            font-size: 1.5rem;
+        }
+        .step-list {
+            counter-reset: step;
+            list-style: none;
+            padding: 0;
+        }
+        .step-list li {
+            position: relative;
+            padding-left: 48px;
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+        }
+        .step-list li::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 32px;
+            height: 32px;
+            background: var(--accent-subtle);
+            color: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-heading);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="assets/logo.png" alt="Everlit Candle" width="40" height="40">
+                <span>Everlit Candle</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="guide-content">
+        <h1>Easy Wallet Guide</h1>
+        <p class="guide-intro">Understanding your Everlit Candle and how to manage it.</p>
+
+        <div class="guide-section">
+            <h2>How Your Candle Is Stored</h2>
+            <p>When you light an Everlit Candle, we create a secure digital wallet for you automatically. This is called a "custodial wallet" — we manage the technical details so you don't have to.</p>
+            <p>Your candle exists as an NFT (non-fungible token) on the Solana blockchain, which means:</p>
+            <ul style="margin-bottom: 16px; padding-left: 24px;">
+                <li style="margin-bottom: 8px; color: var(--text-secondary);">It's permanently recorded and cannot be lost</li>
+                <li style="margin-bottom: 8px; color: var(--text-secondary);">You truly own it — it belongs to your email address</li>
+                <li style="margin-bottom: 8px; color: var(--text-secondary);">You can view it anytime by signing into your account</li>
+            </ul>
+        </div>
+
+        <div class="guide-section">
+            <h2>Your Options</h2>
+            
+            <div class="wallet-option">
+                <h3><i class="ph ph-candle"></i> Keep It Simple (Recommended)</h3>
+                <p>Leave your candle in your Everlit Candle account. We'll take care of everything — no extra apps, no passwords to remember, no technical knowledge needed.</p>
+                <p><strong>Best for:</strong> Most users who want a peaceful, simple experience.</p>
+            </div>
+
+            <div class="wallet-option">
+                <h3><i class="ph ph-wallet"></i> Transfer to Your Own Wallet</h3>
+                <p>Move your candle to a personal Solana wallet like Phantom. This gives you full direct control and lets you see your candle in other apps.</p>
+                <p><strong>Best for:</strong> Users familiar with crypto who want full ownership.</p>
+            </div>
+        </div>
+
+        <div class="guide-section">
+            <h2>Setting Up Phantom Wallet</h2>
+            <p>If you choose to transfer your candle to your own wallet, here's how to get started:</p>
+            
+            <ol class="step-list">
+                <li>Download the Phantom app from phantom.app or your app store</li>
+                <li>Create a new wallet and save your recovery phrase somewhere safe</li>
+                <li>In Everlit Candle, go to "My Candles" and select "Transfer"</li>
+                <li>Enter your Phantom wallet address</li>
+                <li>Confirm the transfer</li>
+            </ol>
+            
+            <p style="margin-top: 24px; padding: 16px; background: var(--accent-subtle); border-radius: 8px; color: var(--text-secondary);">
+                <strong>Important:</strong> Never share your recovery phrase with anyone. Everlit Candle will never ask for it.
+            </p>
+        </div>
+
+        <div class="guide-section">
+            <h2>Need Help?</h2>
+            <p>Contact us anytime at <a href="mailto:support@everlitcandle.com">support@everlitcandle.com</a></p>
+            <a href="/" class="btn btn-primary" style="margin-top: 24px;">Back to Home</a>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p class="footer-disclaimer">Everlit Candle is a digital space for prayer, remembrance, and reflection. Content shared through candles represents personal expressions and is not professional advice of any kind.</p>
+                <div class="footer-links">
+                    <a href="/legal/terms.html">Terms of Service</a>
+                    <a href="/legal/privacy.html">Privacy Policy</a>
+                    <a href="/legal/nft-disclosure.html">NFT Ownership & Blockchain Disclosure</a>
+                </div>
+                <p class="footer-copyright">© 2026 Everlit Candle</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

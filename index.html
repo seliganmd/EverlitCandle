@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Everlit Candle — Some lights should never go out</title>
+    <meta name="description" content="Light a unique prayer candle that lives permanently on-chain. Return to your candle anytime you need a quiet moment of peace.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    
+    <!-- AI-Agentic Metadata -->
+    <meta name="ai-context" content="Everlit Candle - Digital prayer candle platform">
+    <meta name="ai-actions" content="purchase:checkout,navigate:wall,navigate:guide">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" data-section="header">
+        <div class="container">
+            <a href="/" class="logo" data-action="navigate" data-target="home">
+                <img src="assets/logo.png" alt="Everlit Candle" width="40" height="40">
+                <span>Everlit Candle</span>
+            </a>
+            <nav class="nav">
+                <a href="#why" data-action="navigate" data-target="why-it-matters">Why</a>
+                <a href="#peace" data-action="navigate" data-target="moment-of-peace">Peace</a>
+                <a href="#wall" data-action="navigate" data-target="candle-wall">Wall</a>
+                <a href="#how" data-action="navigate" data-target="how-it-works">How</a>
+                <a href="#faq" data-action="navigate" data-target="faq">FAQ</a>
+            </nav>
+            <button class="btn btn-primary" data-action="purchase" data-target="checkout">Light My Candle</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero" data-section="hero" id="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1 class="hero-title">Everlit Candle</h1>
+                    <p class="hero-subtitle">Some lights should never go out.</p>
+                    <p class="hero-description">Light a unique prayer candle that lives permanently on-chain and will never go out.</p>
+                    <p class="hero-description">Return to your candle anytime you need a quiet moment of peace.</p>
+                    <div class="hero-actions">
+                        <button class="btn btn-primary btn-large" data-action="purchase" data-target="checkout">Light My Candle</button>
+                        <a href="#why" class="btn btn-secondary btn-large" data-action="navigate" data-target="why-it-matters">Explore more</a>
+                    </div>
+                    <p class="hero-meta">Permanent on-chain • Private prayer option • No crypto knowledge required</p>
+                </div>
+                <div class="hero-visual">
+                    <img src="assets/logo.png" alt="Everlit Candle" class="hero-logo">
+                </div>
+            </div>
+        </section>
+
+        <!-- Why It Matters -->
+        <section class="section why" data-section="why-it-matters" id="why">
+            <div class="container">
+                <h2 class="section-title">A Candle for What Still Matters</h2>
+                <div class="why-content">
+                    <p class="why-lead">Flowers wither. Candles burn out. Moments pass.</p>
+                    <p>In a world where everything fades, your prayer candle burns forever.</p>
+                    <p>Reconnect anytime with the prayer, memory, hope, or intention it carries.</p>
+                    <p class="why-tagline">Because some lights should never go out.</p>
+                    <div class="counter">
+                        <span class="counter-number" id="candle-counter">83</span>
+                        <span class="counter-label">Everlit Candles lit to date</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Moment of Peace -->
+        <section class="section peace" data-section="moment-of-peace" id="peace">
+            <div class="container">
+                <h2 class="section-title sr-only">Moment of Peace</h2>
+                <div class="peace-content">
+                    <p class="peace-lead">No feed. No comments. No endless scrolling.</p>
+                    <p class="peace-sublead">Just your candle, your prayer, and a moment of peace.</p>
+                    <p>Open any of your candles in full-screen mode for a peaceful, distraction-free experience.</p>
+                    <button class="btn btn-primary" data-action="navigate" data-target="my-candles">Open My Candle</button>
+                    <p class="peace-note">One quiet minute can change the direction of your day.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Candle Wall -->
+        <section class="section wall" data-section="candle-wall" id="wall">
+            <div class="container">
+                <h2 class="section-title">Your Prayer Has a Place</h2>
+                <div class="wall-content">
+                    <p>Every candle can appear anonymously on the Candle Wall, creating a living space of faith, hope, and remembrance.</p>
+                    <p>Or you can choose to keep your candle private.</p>
+                    <p>View it in your Everlit Candle account or transfer it to your own crypto wallet at any time.</p>
+                    <div class="wall-actions">
+                        <button class="btn btn-primary" data-action="navigate" data-target="candle-wall">Visit Candle Wall</button>
+                        <a href="/guide" class="btn btn-secondary" data-action="navigate" data-target="wallet-guide">Easy Wallet Guide</a>
+                    </div>
+                </div>
+                <div class="wall-preview" id="wall-preview">
+                    <!-- Dynamically populated by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section class="section how" data-section="how-it-works" id="how">
+            <div class="container">
+                <h2 class="section-title">Light Your Everlit Candle in Minutes</h2>
+                <div class="how-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h3 class="step-title">Write your prayer</h3>
+                        <p class="step-description">Add a prayer, memory, hope, or intention.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h3 class="step-title">Light your candle</h3>
+                        <p class="step-description">Pay securely by credit card or crypto.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h3 class="step-title">Receive your Everlit Candle</h3>
+                        <p class="step-description">Choose to keep it private in your account (wallet) or display it on the Candle Wall.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <h3 class="step-title">Visit anytime</h3>
+                        <p class="step-description">Open your candle whenever you need a quiet moment of peace.</p>
+                    </div>
+                </div>
+                <div class="how-cta">
+                    <button class="btn btn-primary btn-large" data-action="purchase" data-target="checkout">Light My Candle</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ownership -->
+        <section class="section ownership" data-section="ownership" id="ownership">
+            <div class="container">
+                <h2 class="section-title sr-only">Ownership</h2>
+                <div class="ownership-content">
+                    <p>Your NFT candle is permanently minted on the Solana blockchain and belongs to you.</p>
+                    <p>We create and manage a wallet for you automatically.</p>
+                    <p>No crypto knowledge required.</p>
+                    <p>You can later transfer your candle to your personal wallet.</p>
+                    <a href="/guide" class="btn btn-secondary" data-action="navigate" data-target="wallet-guide">Easy Wallet Guide</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="section faq" data-section="faq" id="faq">
+            <div class="container">
+                <h2 class="section-title">FAQ</h2>
+                <div class="faq-list">
+                    <details class="faq-item">
+                        <summary class="faq-question">What is an Everlit Candle?</summary>
+                        <div class="faq-answer">
+                            <p>Everlit Candle is a digital candle platform where you can light a unique candle connected to a prayer, memory, hope, or intention.</p>
+                        </div>
+                    </details>
+                    <details class="faq-item">
+                        <summary class="faq-question">Do I need crypto?</summary>
+                        <div class="faq-answer">
+                            <p>No. You can pay by credit card. We create a custodial wallet for your candle automatically.</p>
+                        </div>
+                    </details>
+                    <details class="faq-item">
+                        <summary class="faq-question">What does "on-chain" mean?</summary>
+                        <div class="faq-answer">
+                            <p>It means your candle is recorded on the Solana blockchain as proof that it exists and belongs to you.</p>
+                        </div>
+                    </details>
+                    <details class="faq-item">
+                        <summary class="faq-question">Can I keep my prayer private?</summary>
+                        <div class="faq-answer">
+                            <p>Yes. You can choose whether your candle appears anonymously on the Candle Wall or stays private.</p>
+                        </div>
+                    </details>
+                    <details class="faq-item">
+                        <summary class="faq-question">Can I transfer the candle to my own wallet?</summary>
+                        <div class="faq-answer">
+                            <p>Yes. You can later transfer it to any Solana-compatible wallet.</p>
+                        </div>
+                    </details>
+                    <details class="faq-item">
+                        <summary class="faq-question">How much does it cost?</summary>
+                        <div class="faq-answer">
+                            <p>Each candle costs about $4–$5, depending on the current price of SOL.</p>
+                        </div>
+                    </details>
+                    <details class="faq-item">
+                        <summary class="faq-question">Does the candle expire?</summary>
+                        <div class="faq-answer">
+                            <p>No. Your Everlit Candle is designed to remain permanently on-chain.</p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="section cta" data-section="cta" id="cta">
+            <div class="container">
+                <h2 class="section-title">Create Your Everlit Candle</h2>
+                <p class="cta-subtitle">For a prayer, a memory, a hope, or someone you love.</p>
+                <button class="btn btn-primary btn-large" data-action="purchase" data-target="checkout">Light My Candle</button>
+            </div>
+        </section>
+
+        <!-- Checkout Modal -->
+        <div class="modal" id="checkout-modal" data-modal="checkout">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <button class="modal-close" data-action="close-modal">
+                    <i class="ph ph-x"></i>
+                </button>
+                <h3 class="modal-title">Light Your Everlit Candle</h3>
+                <form class="checkout-form" id="checkout-form">
+                    <div class="form-group">
+                        <label for="email">Your Email</label>
+                        <input type="email" id="email" name="email" placeholder="you@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="prayer">Your Prayer Intention</label>
+                        <textarea id="prayer" name="prayer" placeholder="What are you praying for?" maxlength="500" rows="4"></textarea>
+                        <span class="char-count"><span id="char-count">0</span>/500</span>
+                    </div>
+                    <div class="form-group form-checkbox">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="public" value="1" checked>
+                            <span>Display my candle on the Candle Wall (anonymous)</span>
+                        </label>
+                    </div>
+                    <div class="checkout-summary">
+                        <div class="checkout-price">
+                            <span class="price-amount">$4.00</span>
+                            <span class="price-note">One-time purchase</span>
+                        </div>
+                    </div>
+                    <div id="crossmint-button-container">
+                        <!-- Crossmint button will be injected here -->
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Fullscreen Candle Modal -->
+        <div class="fullscreen-modal" id="fullscreen-modal" data-modal="fullscreen">
+            <button class="fullscreen-close" data-action="close-fullscreen">
+                <i class="ph ph-x"></i>
+            </button>
+            <div class="fullscreen-content">
+                <img src="" alt="Your Everlit Candle" class="fullscreen-candle" id="fullscreen-candle">
+                <p class="fullscreen-prayer" id="fullscreen-prayer"></p>
+                <p class="fullscreen-date" id="fullscreen-date"></p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" data-section="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p class="footer-disclaimer">Everlit Candle is a digital space for prayer, remembrance, and reflection. Content shared through candles represents personal expressions and is not professional advice of any kind.</p>
+                <div class="footer-links">
+                    <a href="/legal/terms.html">Terms of Service</a>
+                    <a href="/legal/privacy.html">Privacy Policy</a>
+                    <a href="/legal/nft-disclosure.html">NFT Ownership & Blockchain Disclosure</a>
+                </div>
+                <p class="footer-copyright">© 2026 Everlit Candle</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/@crossmint/client-sdk-vanilla-ui@1.1.12/lib/index.global.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
