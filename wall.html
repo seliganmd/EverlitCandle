@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candle Wall — Everlit Candle</title>
+    <meta name="description" content="A living space of faith, hope, and remembrance. Every candle burns eternally.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .wall-page { padding: 120px 0 80px; min-height: 100vh; }
+        .wall-header { text-align: center; margin-bottom: 64px; }
+        .wall-header h1 { margin-bottom: 16px; }
+        .wall-header p { color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+        .wall-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .wall-candle {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            border: 1px solid var(--border-subtle);
+            transition: transform 0.3s ease;
+        }
+        .wall-candle:hover { transform: translateY(-4px); }
+        .wall-candle img {
+            width: 100%;
+            max-width: 160px;
+            height: auto;
+            border-radius: 1000px;
+            margin-bottom: 16px;
+        }
+        .wall-candle .date {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+        .wall-loading {
+            text-align: center;
+            padding: 80px;
+            color: var(--text-muted);
+        }
+        @media (min-width: 768px) {
+            .wall-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (min-width: 1024px) {
+            .wall-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="assets/logo.png" alt="Everlit Candle" width="40" height="40">
+                <span>Everlit Candle</span>
+            </a>
+            <nav class="nav">
+                <a href="/">Home</a>
+                <a href="/wall.html">Wall</a>
+                <a href="/mycandles.html">My Candles</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="wall-page">
+        <div class="container">
+            <div class="wall-header">
+                <span class="section-eyebrow" style="display: block; text-align: center; font-size: 0.875rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px;">Candle Wall</span>
+                <h1>Your Prayer Has a Place</h1>
+                <p>A living space of faith, hope, and remembrance. Every candle here burns eternally, carrying prayers, memories, and intentions from around the world.</p>
+            </div>
+            <div class="wall-grid" id="wall-grid">
+                <div class="wall-loading">Loading candles...</div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p class="footer-disclaimer">Everlit Candle is a digital space for prayer, remembrance, and reflection. Content shared through candles represents personal expressions and is not professional advice of any kind.</p>
+                <div class="footer-links">
+                    <a href="/legal/terms.html">Terms of Service</a>
+                    <a href="/legal/privacy.html">Privacy Policy</a>
+                    <a href="/legal/nft-disclosure.html">NFT Ownership & Blockchain Disclosure</a>
+                </div>
+                <p class="footer-copyright">© 2026 Everlit Candle</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Load all public candles
+        async function loadFullWall() {
+            const grid = document.getElementById('wall-grid');
+            try {
+                const response = await fetch(`https://www.crossmint.com/api/2022-06-09/collections/64338985-40a0-4efc-a4aa-baadefe08ef1/nfts?page=1&perPage=50`);
+                const data = await response.json();
+                
+                if (Array.isArray(data) && data.length > 0) {
+                    grid.innerHTML = data.map(nft => {
+                        const date = new Date(nft.onChain?.timestamp || Date.now()).toLocaleDateString('en-US', {
+                            month: 'short', day: 'numeric', year: 'numeric'
+                        });
+                        return `
+                            <div class="wall-candle">
+                                <img src="${nft.metadata.image}" alt="Everlit Candle">
+                                <span class="date">Lit on ${date}</span>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    grid.innerHTML = '<div class="wall-loading">No public candles yet. Be the first to light one.</div>';
+                }
+            } catch (error) {
+                grid.innerHTML = '<div class="wall-loading">Unable to load candles. Please try again later.</div>';
+            }
+        }
+        loadFullWall();
+    </script>
+</body>
+</html>

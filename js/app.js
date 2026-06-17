@@ -5,10 +5,12 @@
 
 // Configuration
 const CONFIG = {
-    COLLECTION_ID: '7ac5706c-4ec7-43cb-b4ec-eb0e17054bf3',
-    PROJECT_ID: '6c879aaf-21a5-4c02-b053-e78f4d1b2309',
-    CROSSMINT_ENV: 'staging', // Change to 'production' for mainnet
-    API_BASE: 'https://staging.crossmint.com/api/2022-06-09'
+    COLLECTION_ID: '64338985-40a0-4efc-a4aa-baadefe08ef1',
+    PROJECT_ID: '255LvC7vjfDhmTSBXcAtFckaoRAgi8WikkukRzgJ1jyjwbCs5K1uYiNJhfGx8dEK9oq2qcj7zY8ByJHHuizrCm5VffooCu3x9Q8vn27kYZZJB6rCrZ3ThFhUM56cvxQJKNQe39eiYH4z3T7aTGcAyFUQtJfS2sFHtxvAHroR6oT56xRbu75wow51XGtALff634KcjzbMNKJdCQFLJ2GcXZz',
+    SERVER_KEY: 'sk_production_5izAun5aBHh4wDg9U6EdDWoNBsfkGYABJ8ophKaS6GhSXwyN22XXQ7HdnNzEq61pr3u9ikhkNKzPuTZsGZ6euNWj1GCvWTkkFnN4scwoxGoeLniSBzqfkJpZhZCemgUk9xLwXHVhMBV7DEdmWNBABGpGmx4zsxFWYsM7j7c8YQYBMKu6PBBbxDJArntLYNKb4KZ7yoxVMc8DP85iWTmQodEJ',
+    CROSSMINT_ENV: 'production',
+    API_BASE: 'https://www.crossmint.com/api/2022-06-09',
+    PRICE: '$7.00'
 };
 
 // DOM Ready
