@@ -495,10 +495,10 @@ a {
 }
 
 .peace-note {
-  margin-top: var(--space-5);
-  font-size: 16px;
-  color: var(--color-text-tertiary);
-  font-style: italic;
+  font-family: var(--font-heading);
+  font-size: 24px;
+  color: var(--color-accent);
+  margin: var(--space-5) 0;
 }
 
 /* Candle Wall */
