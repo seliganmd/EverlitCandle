@@ -93,20 +93,23 @@
             </div>
         </section>
 
-        <!-- Candle Wall -->
+        <!-- Candle Wall Preview -->
         <section class="section wall" data-section="candle-wall" id="wall">
             <div class="container">
                 <h4 class="section-eyebrow">Candle Wall</h4>
                 <h2 class="section-title">Your Prayer Has a Place</h2>
                 <p class="section-subtitle">Every candle can appear anonymously on the Candle Wall, creating a living space of faith, hope, and remembrance. Or keep it private.</p>
-                <div class="wall-content">
+                
+                <!-- Preview Grid -->
+                <div class="wall-preview-grid" id="wall-preview">
+                    <!-- Dynamically populated by JS -->
+                </div>
+                
+                <div class="wall-content" style="margin-top: var(--space-6);">
                     <div class="wall-actions">
                         <a href="/wall.html" class="btn btn-primary">Visit Candle Wall</a>
                         <a href="/guide" class="btn btn-secondary" data-action="navigate" data-target="wallet-guide">Easy Wallet Guide</a>
                     </div>
-                </div>
-                <div class="wall-preview" id="wall-preview">
-                    <!-- Dynamically populated by JS -->
                 </div>
             </div>
         </section>
@@ -290,8 +293,136 @@
         </div>
     </footer>
 
+    <!-- Inline Styles for Wall Preview -->
+    <style>
+        .wall-preview-grid {
+            display: grid;
+            gap: var(--space-3);
+            max-width: 1000px;
+            margin: var(--space-6) auto 0;
+        }
+        
+        @media (min-width: 480px) {
+            .wall-preview-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .wall-preview-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        .wall-preview-grid .candle-card {
+            background: var(--color-bg-secondary);
+            border-radius: var(--card-radius);
+            padding: var(--space-4);
+            border: 1px solid var(--color-border-subtle);
+            text-align: center;
+            transition: transform var(--duration-base) var(--ease-out);
+        }
+        
+        .wall-preview-grid .candle-card:hover {
+            transform: translateY(-4px);
+        }
+        
+        .wall-preview-grid .candle-card img {
+            width: 64px;
+            height: 64px;
+            border-radius: 1000px;
+            margin-bottom: var(--space-2);
+            object-fit: cover;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .wall-preview-grid .candle-number {
+            font-family: var(--font-heading);
+            font-size: 12px;
+            color: var(--color-accent);
+            margin-bottom: var(--space-1);
+            letter-spacing: 0.05em;
+        }
+        
+        .wall-preview-grid .candle-date {
+            font-size: 12px;
+            color: var(--color-text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        @media (max-width: 767px) {
+            .wall-preview-grid .candle-card {
+                padding: var(--space-3);
+            }
+            
+            .wall-preview-grid .candle-card img {
+                width: 48px;
+                height: 48px;
+            }
+        }
+    </style>
+    
     <!-- Scripts -->
     <script src="https://unpkg.com/@crossmint/client-sdk-vanilla-ui@1.1.12/lib/index.global.js"></script>
     <script src="js/app.js"></script>
+    
+    <!-- Load Wall Preview -->
+    <script>
+        // Load preview candles for home page (show first 4)
+        async function loadWallPreview() {
+            const grid = document.getElementById('wall-preview');
+            
+            try {
+                const response = await fetch('https://www.crossmint.com/api/2022-06-09/collections/7ac5706c-4ec7-43cb-b4ec-eb0e17054bf3/nfts?page=1&perPage=4');
+                const data = await response.json();
+                
+                if (Array.isArray(data) && data.length > 0) {
+                    const candles = data.filter(nft => nft.metadata?.image).slice(0, 4);
+                    
+                    grid.innerHTML = candles.map((nft, index) => {
+                        const number = candles.length - index;
+                        const date = new Date(nft.onChain?.timestamp || Date.now()).toLocaleDateString('en-US', {
+                            month: 'short', 
+                            day: 'numeric'
+                        });
+                        return `
+                            <div class="candle-card">
+                                <img src="${nft.metadata.image}" alt="Everlit Candle #${number}" loading="lazy">
+                                <p class="candle-number">Candle #${number}</p>
+                                <p class="candle-date">${date}</p>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    // Show placeholder candles if none exist
+                    grid.innerHTML = Array(4).fill(0).map((_, i) => `
+                        <div class="candle-card">
+                            <img src="assets/logo.png" alt="Everlit Candle" loading="lazy" style="opacity: 0.5;">
+                            <p class="candle-number">Awaiting</p>
+                            <p class="candle-date">Be the first</p>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Failed to load wall preview:', error);
+                // Silent fail - show placeholder
+                grid.innerHTML = Array(4).fill(0).map((_, i) => `
+                    <div class="candle-card">
+                        <img src="assets/logo.png" alt="Everlit Candle" loading="lazy" style="opacity: 0.5;">
+                        <p class="candle-number">Awaiting</p>
+                        <p class="candle-date">Be the first</p>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        // Load preview when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadWallPreview);
+        } else {
+            loadWallPreview();
+        }
+    </script>
 </body>
 </html>

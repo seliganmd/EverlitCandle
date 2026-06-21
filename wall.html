@@ -388,11 +388,7 @@
                 <p class="candle-date">Lit on ${date}</p>
             `;
             
-            // Click to view fullscreen
-            card.addEventListener('click', () => {
-                openFullscreenCandle(nft, number);
-            });
-            
+            // Cards on public wall are not clickable - fullscreen only on My Candles page
             return card;
         }
         
@@ -432,60 +428,8 @@
             viewMoreBtn.style.display = 'none';
         }
         
-        // Open fullscreen candle view
-        function openFullscreenCandle(nft, number) {
-            // Create modal if it doesn't exist
-            let modal = document.getElementById('candle-modal');
-            if (!modal) {
-                modal = document.createElement('div');
-                modal.id = 'candle-modal';
-                modal.className = 'fullscreen-modal';
-                modal.innerHTML = `
-                    <button class="fullscreen-close" onclick="closeFullscreen()">
-                        <i class="ph ph-x"></i>
-                    </button>
-                    <div class="fullscreen-content">
-                        <img src="" alt="" class="fullscreen-candle" id="modal-candle-img">
-                        <p class="fullscreen-prayer" id="modal-candle-number"></p>
-                        <p class="fullscreen-date" id="modal-candle-date"></p>
-                    </div>
-                `;
-                document.body.appendChild(modal);
-            }
-            
-            const date = new Date(nft.onChain?.timestamp || Date.now()).toLocaleDateString('en-US', {
-                month: 'long', 
-                day: 'numeric', 
-                year: 'numeric'
-            });
-            
-            document.getElementById('modal-candle-img').src = nft.metadata.image;
-            document.getElementById('modal-candle-number').textContent = `Candle #${number}`;
-            document.getElementById('modal-candle-date').textContent = `Lit on ${date}`;
-            
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-        
-        // Close fullscreen
-        function closeFullscreen() {
-            const modal = document.getElementById('candle-modal');
-            if (modal) {
-                modal.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        }
-        
-        // Close on escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeFullscreen();
-        });
-        
-        // Close on backdrop click
-        document.addEventListener('click', (e) => {
-            if (e.target.id === 'candle-modal') closeFullscreen();
-        });
-        
+        // Note: Fullscreen view is only available on My Candles page for owned candles
+        // Public Candle Wall shows static grid only
         // Initialize
         loadCandles();
     </script>
