@@ -16,52 +16,236 @@
     
     <!-- Styles -->
     <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- Page-specific styles -->
     <style>
-        .wall-page { padding: 120px 0 80px; min-height: 100vh; }
-        .wall-header { text-align: center; margin-bottom: 64px; }
-        .wall-header h1 { margin-bottom: 16px; }
-        .wall-header p { color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+        /* Wall Page Layout */
+        .wall-page {
+            padding: calc(72px + var(--space-8)) 0 var(--space-16);
+            min-height: 100vh;
+        }
+        
+        /* Wall Header */
+        .wall-header {
+            text-align: center;
+            margin-bottom: var(--space-8);
+        }
+        
+        .wall-header h1 {
+            font-family: var(--font-heading);
+            font-size: clamp(36px, 5vw, 48px);
+            margin-bottom: var(--space-3);
+        }
+        
+        .wall-header p {
+            max-width: 600px;
+            margin: 0 auto;
+            color: var(--color-text-secondary);
+            font-size: var(--text-body-size);
+        }
+        
+        /* Candle Grid - Matches Steps Grid */
         .wall-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 24px;
+            gap: var(--space-3);
             max-width: 1200px;
-            margin: 0 auto;
+            margin: 0 auto var(--space-6);
         }
-        .wall-candle {
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            padding: 32px;
-            text-align: center;
-            border: 1px solid var(--border-subtle);
-            transition: transform 0.3s ease;
+        
+        @media (min-width: 640px) {
+            .wall-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
-        .wall-candle:hover { transform: translateY(-4px); }
-        .wall-candle img {
-            width: 100%;
-            max-width: 160px;
-            height: auto;
-            border-radius: 1000px;
-            margin-bottom: 16px;
-        }
-        .wall-candle .date {
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-        .wall-loading {
-            text-align: center;
-            padding: 80px;
-            color: var(--text-muted);
-        }
+        
         @media (min-width: 768px) {
-            .wall-grid { grid-template-columns: repeat(3, 1fr); }
+            .wall-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
+        
         @media (min-width: 1024px) {
-            .wall-grid { grid-template-columns: repeat(4, 1fr); }
+            .wall-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        /* Candle Card - Matches Step Card */
+        .candle-card {
+            background: var(--color-bg-secondary);
+            border-radius: var(--card-radius);
+            padding: var(--space-5);
+            border: 1px solid var(--color-border-subtle);
+            text-align: center;
+            transition: transform var(--duration-base) var(--ease-out);
+            cursor: pointer;
+        }
+        
+        .candle-card:hover {
+            transform: translateY(-4px);
+        }
+        
+        .candle-card:active {
+            transform: scale(0.98);
+        }
+        
+        .candle-card img {
+            width: 80px;
+            height: 80px;
+            border-radius: 1000px;
+            margin-bottom: var(--space-3);
+            object-fit: cover;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .candle-card .candle-number {
+            font-family: var(--font-heading);
+            font-size: 14px;
+            color: var(--color-accent);
+            margin-bottom: var(--space-2);
+            letter-spacing: 0.05em;
+        }
+        
+        .candle-card .candle-date {
+            font-size: 14px;
+            color: var(--color-text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        /* Loading State */
+        .wall-loading {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: var(--space-10) var(--space-4);
+            color: var(--color-text-tertiary);
+        }
+        
+        .wall-loading i {
+            font-size: 32px;
+            margin-bottom: var(--space-3);
+            display: block;
+        }
+        
+        /* Empty State */
+        .wall-empty {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: var(--space-10) var(--space-4);
+        }
+        
+        .wall-empty i {
+            font-size: 48px;
+            color: var(--color-text-muted);
+            margin-bottom: var(--space-4);
+        }
+        
+        .wall-empty p {
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-4);
+        }
+        
+        /* View More Button */
+        .wall-actions {
+            text-align: center;
+            margin-top: var(--space-6);
+        }
+        
+        .wall-actions .btn {
+            min-width: 200px;
+        }
+        
+        .wall-actions .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .wall-actions .btn.loading {
+            position: relative;
+            color: transparent;
+        }
+        
+        .wall-actions .btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--color-bg-primary);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            left: 50%;
+            top: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Candle Count */
+        .wall-count {
+            text-align: center;
+            margin-bottom: var(--space-6);
+            font-size: var(--text-ui-size);
+            color: var(--color-text-tertiary);
+        }
+        
+        .wall-count span {
+            color: var(--color-accent);
+            font-weight: 500;
+        }
+        
+        /* Mobile Optimizations */
+        @media (max-width: 639px) {
+            .wall-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--space-2);
+            }
+            
+            .candle-card {
+                padding: var(--space-3);
+            }
+            
+            .candle-card img {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .wall-header h1 {
+                font-size: 32px;
+            }
+        }
+        
+        /* Touch-friendly targets */
+        @media (pointer: coarse) {
+            .candle-card {
+                -webkit-tap-highlight-color: transparent;
+            }
+            
+            .wall-actions .btn {
+                min-height: 56px;
+                min-width: 240px;
+            }
+        }
+        
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            .candle-card,
+            .wall-actions .btn {
+                transition: none;
+            }
+            
+            .wall-actions .btn.loading::after {
+                animation: none;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Header -->
     <header class="header">
         <div class="container">
             <a href="/" class="logo">
@@ -70,25 +254,43 @@
             </a>
             <nav class="nav">
                 <a href="/">Home</a>
-                <a href="/wall.html">Wall</a>
+                <a href="/wall.html">Candle Wall</a>
                 <a href="/mycandles.html">My Candles</a>
             </nav>
         </div>
     </header>
 
+    <!-- Main Content -->
     <main class="wall-page">
         <div class="container">
+            <!-- Header -->
             <div class="wall-header">
-                <span class="section-eyebrow" style="display: block; text-align: center; font-size: 0.875rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px;">Candle Wall</span>
+                <h4 class="section-eyebrow">Candle Wall</h4>
                 <h1>Your Prayer Has a Place</h1>
                 <p>A living space of faith, hope, and remembrance. Every candle here burns eternally, carrying prayers, memories, and intentions from around the world.</p>
             </div>
+            
+            <!-- Count -->
+            <p class="wall-count">Showing <span id="shown-count">0</span> of <span id="total-count">0</span> candles</p>
+            
+            <!-- Grid -->
             <div class="wall-grid" id="wall-grid">
-                <div class="wall-loading">Loading candles...</div>
+                <div class="wall-loading">
+                    <i class="ph ph-spinner animate-spin"></i>
+                    Loading candles...
+                </div>
+            </div>
+            
+            <!-- View More -->
+            <div class="wall-actions">
+                <button class="btn btn-secondary" id="view-more-btn" style="display: none;">
+                    View More
+                </button>
             </div>
         </div>
     </main>
 
+    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -103,35 +305,189 @@
         </div>
     </footer>
 
+    <!-- Scripts -->
     <script src="js/app.js"></script>
     <script>
-        // Load all public candles
-        async function loadFullWall() {
-            const grid = document.getElementById('wall-grid');
+        // Candle Wall Pagination
+        const CANDLES_PER_PAGE = 12;
+        let allCandles = [];
+        let currentPage = 0;
+        
+        const grid = document.getElementById('wall-grid');
+        const viewMoreBtn = document.getElementById('view-more-btn');
+        const shownCountEl = document.getElementById('shown-count');
+        const totalCountEl = document.getElementById('total-count');
+        
+        // Load candles from API
+        async function loadCandles() {
             try {
-                const response = await fetch(`https://www.crossmint.com/api/2022-06-09/collections/64338985-40a0-4efc-a4aa-baadefe08ef1/nfts?page=1&perPage=50`);
+                // Using staging collection for demo (replace with production when ready)
+                const response = await fetch('https://www.crossmint.com/api/2022-06-09/collections/7ac5706c-4ec7-43cb-b4ec-eb0e17054bf3/nfts?page=1&perPage=100');
                 const data = await response.json();
                 
                 if (Array.isArray(data) && data.length > 0) {
-                    grid.innerHTML = data.map(nft => {
-                        const date = new Date(nft.onChain?.timestamp || Date.now()).toLocaleDateString('en-US', {
-                            month: 'short', day: 'numeric', year: 'numeric'
-                        });
-                        return `
-                            <div class="wall-candle">
-                                <img src="${nft.metadata.image}" alt="Everlit Candle">
-                                <span class="date">Lit on ${date}</span>
-                            </div>
-                        `;
-                    }).join('');
+                    allCandles = data.filter(nft => nft.metadata?.image);
+                    totalCountEl.textContent = allCandles.length;
+                    renderPage();
                 } else {
-                    grid.innerHTML = '<div class="wall-loading">No public candles yet. Be the first to light one.</div>';
+                    showEmptyState();
                 }
             } catch (error) {
-                grid.innerHTML = '<div class="wall-loading">Unable to load candles. Please try again later.</div>';
+                console.error('Failed to load candles:', error);
+                showErrorState();
             }
         }
-        loadFullWall();
+        
+        // Render current page
+        function renderPage() {
+            const start = 0;
+            const end = (currentPage + 1) * CANDLES_PER_PAGE;
+            const candlesToShow = allCandles.slice(start, end);
+            
+            // Clear loading state on first render
+            if (currentPage === 0) {
+                grid.innerHTML = '';
+            }
+            
+            // Render candles
+            candlesToShow.forEach((nft, index) => {
+                // Skip if already rendered
+                if (grid.children[index]) return;
+                
+                const card = createCandleCard(nft, allCandles.length - index);
+                grid.appendChild(card);
+            });
+            
+            // Update count
+            shownCountEl.textContent = candlesToShow.length;
+            
+            // Show/hide View More button
+            if (end < allCandles.length) {
+                viewMoreBtn.style.display = 'inline-flex';
+                viewMoreBtn.disabled = false;
+                viewMoreBtn.classList.remove('loading');
+                viewMoreBtn.textContent = 'View More';
+            } else {
+                viewMoreBtn.style.display = 'none';
+            }
+        }
+        
+        // Create candle card element
+        function createCandleCard(nft, number) {
+            const date = new Date(nft.onChain?.timestamp || Date.now()).toLocaleDateString('en-US', {
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric'
+            });
+            
+            const card = document.createElement('div');
+            card.className = 'candle-card';
+            card.innerHTML = `
+                <img src="${nft.metadata.image}" alt="Everlit Candle #${number}" loading="lazy">
+                <p class="candle-number">Candle #${number}</p>
+                <p class="candle-date">Lit on ${date}</p>
+            `;
+            
+            // Click to view fullscreen
+            card.addEventListener('click', () => {
+                openFullscreenCandle(nft, number);
+            });
+            
+            return card;
+        }
+        
+        // View More button handler
+        viewMoreBtn.addEventListener('click', () => {
+            viewMoreBtn.disabled = true;
+            viewMoreBtn.classList.add('loading');
+            
+            // Simulate loading delay for better UX
+            setTimeout(() => {
+                currentPage++;
+                renderPage();
+            }, 300);
+        });
+        
+        // Show empty state
+        function showEmptyState() {
+            grid.innerHTML = `
+                <div class="wall-empty">
+                    <i class="ph ph-candle"></i>
+                    <p>No public candles yet. Be the first to light one.</p>
+                    <a href="/" class="btn btn-primary">Light My Candle</a>
+                </div>
+            `;
+            viewMoreBtn.style.display = 'none';
+        }
+        
+        // Show error state
+        function showErrorState() {
+            grid.innerHTML = `
+                <div class="wall-empty">
+                    <i class="ph ph-warning-circle"></i>
+                    <p>Unable to load candles. Please try again later.</p>
+                    <button class="btn btn-secondary" onclick="location.reload()">Retry</button>
+                </div>
+            `;
+            viewMoreBtn.style.display = 'none';
+        }
+        
+        // Open fullscreen candle view
+        function openFullscreenCandle(nft, number) {
+            // Create modal if it doesn't exist
+            let modal = document.getElementById('candle-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'candle-modal';
+                modal.className = 'fullscreen-modal';
+                modal.innerHTML = `
+                    <button class="fullscreen-close" onclick="closeFullscreen()">
+                        <i class="ph ph-x"></i>
+                    </button>
+                    <div class="fullscreen-content">
+                        <img src="" alt="" class="fullscreen-candle" id="modal-candle-img">
+                        <p class="fullscreen-prayer" id="modal-candle-number"></p>
+                        <p class="fullscreen-date" id="modal-candle-date"></p>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            
+            const date = new Date(nft.onChain?.timestamp || Date.now()).toLocaleDateString('en-US', {
+                month: 'long', 
+                day: 'numeric', 
+                year: 'numeric'
+            });
+            
+            document.getElementById('modal-candle-img').src = nft.metadata.image;
+            document.getElementById('modal-candle-number').textContent = `Candle #${number}`;
+            document.getElementById('modal-candle-date').textContent = `Lit on ${date}`;
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Close fullscreen
+        function closeFullscreen() {
+            const modal = document.getElementById('candle-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+        
+        // Close on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeFullscreen();
+        });
+        
+        // Close on backdrop click
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'candle-modal') closeFullscreen();
+        });
+        
+        // Initialize
+        loadCandles();
     </script>
 </body>
 </html>
