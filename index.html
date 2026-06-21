@@ -58,7 +58,7 @@
                     <p class="hero-meta">Permanent on-chain • Private prayer option • No crypto knowledge required</p>
                 </div>
                 <div class="hero-visual">
-                    <img src="assets/logo.png" alt="Everlit Candle" class="hero-logo">
+                    <img src="assets/EverlitCandle_animated.gif" alt="Everlit Candle" class="hero-logo">
                 </div>
             </div>
         </section>
@@ -141,7 +141,7 @@
                         <p class="step-description">Open your candle whenever you need a quiet moment of peace.</p>
                     </div>
                 </div>
-                <div class="how-cta">
+                <div class="how-cta" style="text-align: center; margin-top: var(--space-6);">
                     <button class="btn btn-primary btn-large" data-action="purchase" data-target="checkout">Light My Candle</button>
                 </div>
             </div>
@@ -388,7 +388,7 @@
                         });
                         return `
                             <div class="candle-card">
-                                <img src="${nft.metadata.image}" alt="Everlit Candle #${number}" loading="lazy">
+                                <img src="assets/logo.png" alt="Everlit Candle #${number}" loading="lazy">
                                 <p class="candle-number">Candle #${number}</p>
                                 <p class="candle-date">${date}</p>
                             </div>
@@ -409,7 +409,7 @@
                 // Silent fail - show placeholder
                 grid.innerHTML = Array(4).fill(0).map((_, i) => `
                     <div class="candle-card">
-                        <img src="assets/logo.png" alt="Everlit Candle" loading="lazy" style="opacity: 0.5;">
+                        <img src="assets/logo.png" alt="Everlit Candle" loading="lazy">
                         <p class="candle-number">Awaiting</p>
                         <p class="candle-date">Be the first</p>
                     </div>
