@@ -14,8 +14,8 @@
   --color-bg-surface: #1e1c19;
   --color-bg-surface-hover: #26231f;
   --color-border: #2e2b26;
-  --color-primary: #d97736;
-  --color-primary-glow: rgba(217, 119, 54, 0.4);
+  --color-primary: #C9A227;
+  --color-primary-glow: rgba(201, 162, 39, 0.4);
   --color-text-primary: #c9c5be;
   --color-text-muted: #8f8c85;
   --color-white: #ffffff;
@@ -522,7 +522,7 @@ a {
   }
 }
 
-/* Candle Card - Feature Card Style */
+/* Candle Card - Same as Step Card */
 .candle-card {
   background: var(--color-bg-surface);
   border-radius: var(--radius-xl);
@@ -531,16 +531,11 @@ a {
   box-shadow: var(--shadow-card-glow);
   text-align: center;
   transition: var(--transition-standard);
-  cursor: pointer;
 }
 
 .candle-card:hover {
   transform: translateY(-4px);
   border-color: rgba(255, 255, 255, 0.1);
-}
-
-.candle-card:active {
-  transform: scale(0.98);
 }
 
 .candle-card img {
@@ -1028,10 +1023,10 @@ a {
     display: none !important;
   }
   
-  /* Mobile: Hero buttons same width */
+  /* Mobile: Hero buttons same width, left aligned */
   .hero-actions {
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
   }
   
   .hero-actions .btn {
@@ -1057,10 +1052,10 @@ a {
     bottom: 0;
     background: var(--color-bg-primary);
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     justify-content: flex-start;
-    padding-top: var(--space-xl);
-    gap: var(--space-lg);
+    padding: var(--space-xl) var(--space-lg);
+    gap: var(--space-md);
     z-index: 99;
   }
   
@@ -1069,9 +1064,11 @@ a {
   }
   
   .nav a {
-    font-size: 20px;
-    padding: var(--space-sm) 0;
+    font-size: 18px;
+    padding: var(--space-md) 0;
     color: var(--color-text-primary);
+    width: 100%;
+    border-bottom: 1px solid var(--color-border);
   }
   
   /* Hamburger button */
@@ -1082,7 +1079,7 @@ a {
     gap: 5px;
     width: 32px;
     height: 32px;
-    background: none;
+    background: var(--color-bg-primary);
     border: none;
     cursor: pointer;
     padding: 0;

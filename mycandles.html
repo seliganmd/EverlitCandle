@@ -19,68 +19,71 @@
     <style>
         /* Page Layout */
         .mycandles-page { 
-            padding: calc(72px + var(--space-8)) 0 var(--space-16); 
+            padding: calc(80px + var(--space-xl)) 0 var(--space-section); 
             min-height: 100vh; 
         }
         
         /* Header */
         .mycandles-header { 
             text-align: center; 
-            margin-bottom: var(--space-8); 
+            margin-bottom: var(--space-xl); 
         }
         
         .mycandles-header h1 { 
-            font-family: var(--font-heading);
+            font-family: var(--font-primary);
             font-size: clamp(36px, 5vw, 48px);
-            margin-bottom: var(--space-3); 
+            font-weight: 600;
+            color: var(--color-white);
+            margin-bottom: var(--space-md); 
         }
         
         .mycandles-header p { 
-            color: var(--color-text-secondary); 
+            color: var(--color-text-primary); 
             max-width: 600px; 
             margin: 0 auto; 
+            font-size: var(--text-body-xl-size);
         }
         
         /* Login Form */
         .login-form {
             max-width: 400px;
             margin: 0 auto;
-            background: var(--color-bg-secondary);
-            padding: var(--space-5);
-            border-radius: var(--card-radius);
-            border: 1px solid var(--color-border-subtle);
+            background: var(--color-bg-surface);
+            padding: var(--space-xl);
+            border-radius: var(--radius-xl);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
         
         .login-form label {
             display: block; 
-            margin-bottom: var(--space-2); 
-            color: var(--color-text-primary);
-            font-size: var(--text-ui-size);
-            font-weight: var(--text-ui-weight);
+            margin-bottom: var(--space-sm); 
+            color: var(--color-white);
+            font-size: 14px;
+            font-weight: 500;
         }
         
         .login-form input {
             width: 100%;
-            height: var(--input-height);
-            padding: 0 var(--space-3);
-            background: var(--color-bg-tertiary);
+            height: 48px;
+            padding: 0 var(--space-md);
+            background: var(--color-bg-primary);
             border: 1px solid var(--color-border);
-            border-radius: var(--input-radius);
-            color: var(--color-text-primary);
-            font-family: var(--font-body);
-            font-size: var(--text-body-size);
-            margin-bottom: var(--space-3);
+            border-radius: var(--radius-md);
+            color: var(--color-white);
+            font-family: var(--font-primary);
+            font-size: 16px;
+            margin-bottom: var(--space-md);
         }
         
         .login-form input:focus {
             outline: none;
-            border-color: var(--color-accent);
+            border-color: var(--color-primary);
         }
         
-        /* Candles Grid - Same as Wall */
+        /* Candles Grid */
         .candles-grid {
             display: grid;
-            gap: var(--space-3);
+            gap: var(--space-lg);
             max-width: 1000px;
             margin: 0 auto;
         }
@@ -93,46 +96,44 @@
             .candles-grid { grid-template-columns: repeat(3, 1fr); }
         }
         
-        /* Candle Card - Same as Wall */
-        .candle-card {
-            background: var(--color-bg-secondary);
-            border-radius: var(--card-radius);
-            padding: var(--space-5);
-            border: 1px solid var(--color-border-subtle);
+        /* Candle Card - Same as Step Card */
+        .candles-grid .candle-card {
+            background: var(--color-bg-surface);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
             text-align: center;
-            transition: transform var(--duration-base) var(--ease-out);
+            transition: all 0.3s ease-in-out;
             cursor: pointer;
         }
         
-        .candle-card:hover { 
-            transform: translateY(-4px); 
+        .candles-grid .candle-card:hover { 
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.1);
         }
         
-        .candle-card:active {
-            transform: scale(0.98);
-        }
-        
-        .candle-card img {
+        .candles-grid .candle-card img {
             width: 80px;
             height: 80px;
-            border-radius: 1000px;
+            border-radius: var(--radius-full);
             object-fit: cover;
-            margin-bottom: var(--space-3);
-            box-shadow: var(--shadow-md);
+            margin-bottom: var(--space-md);
         }
         
-        .candle-card .candle-number {
-            font-family: var(--font-heading);
+        .candles-grid .candle-card .candle-number {
+            font-family: var(--font-primary);
             font-size: 14px;
-            color: var(--color-accent);
-            margin-bottom: var(--space-2);
+            font-weight: 500;
+            color: var(--color-primary);
+            margin-bottom: var(--space-sm);
             letter-spacing: 0.05em;
         }
         
-        .candle-card .candle-prayer {
+        .candles-grid .candle-card .candle-prayer {
             font-size: 14px;
-            color: var(--color-text-secondary);
-            margin: 0 0 var(--space-2) 0;
+            color: var(--color-text-primary);
+            margin: 0 0 var(--space-sm) 0;
             line-height: 1.5;
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -140,9 +141,9 @@
             overflow: hidden;
         }
         
-        .candle-card .candle-date {
+        .candles-grid .candle-card .candle-date {
             font-size: 12px;
-            color: var(--color-text-tertiary);
+            color: var(--color-text-muted);
             text-transform: uppercase;
             letter-spacing: 0.1em;
         }
@@ -151,19 +152,19 @@
         .empty-state {
             grid-column: 1 / -1;
             text-align: center;
-            padding: var(--space-10) var(--space-4);
+            padding: 80px var(--space-lg);
             color: var(--color-text-muted);
         }
         
-        .empty-state a { color: var(--color-accent); }
+        .empty-state a { color: var(--color-primary); }
         
         /* Mobile Optimizations */
         @media (max-width: 639px) {
-            .candle-card {
-                padding: var(--space-4);
+            .candles-grid .candle-card {
+                padding: var(--space-lg);
             }
             
-            .candle-card img {
+            .candles-grid .candle-card img {
                 width: 64px;
                 height: 64px;
             }
@@ -171,7 +172,7 @@
         
         /* Touch-friendly */
         @media (pointer: coarse) {
-            .candle-card {
+            .candles-grid .candle-card {
                 -webkit-tap-highlight-color: transparent;
             }
         }
@@ -179,25 +180,25 @@
         /* Mobile Header - Hamburger */
         @media (max-width: 767px) {
             .logo span {
-                font-family: var(--font-heading);
+                font-family: var(--font-primary);
                 font-size: 24px;
-                font-weight: 500;
+                font-weight: 600;
                 letter-spacing: -0.02em;
             }
             
             .nav {
                 display: none;
                 position: fixed;
-                top: 72px;
+                top: 80px;
                 left: 0;
                 right: 0;
                 bottom: 0;
                 background: var(--color-bg-primary);
                 flex-direction: column;
-                align-items: center;
+                align-items: flex-start;
                 justify-content: flex-start;
-                padding-top: var(--space-8);
-                gap: var(--space-4);
+                padding: var(--space-xl) var(--space-lg);
+                gap: var(--space-md);
                 z-index: 99;
             }
             
@@ -206,8 +207,11 @@
             }
             
             .nav a {
-                font-size: 20px;
-                padding: var(--space-2) 0;
+                font-size: 18px;
+                padding: var(--space-md) 0;
+                color: var(--color-text-primary);
+                width: 100%;
+                border-bottom: 1px solid var(--color-border);
             }
             
             .hamburger {
@@ -217,7 +221,7 @@
                 gap: 5px;
                 width: 32px;
                 height: 32px;
-                background: none;
+                background: var(--color-bg-primary);
                 border: none;
                 cursor: pointer;
                 padding: 0;
@@ -227,7 +231,7 @@
                 display: block;
                 width: 24px;
                 height: 2px;
-                background: var(--color-text-primary);
+                background: var(--color-white);
                 transition: all 0.3s ease;
             }
             

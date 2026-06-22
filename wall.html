@@ -21,35 +21,37 @@
     <style>
         /* Wall Page Layout */
         .wall-page {
-            padding: calc(72px + var(--space-8)) 0 var(--space-16);
+            padding: calc(80px + var(--space-xl)) 0 var(--space-section);
             min-height: 100vh;
         }
         
         /* Wall Header */
         .wall-header {
             text-align: center;
-            margin-bottom: var(--space-8);
+            margin-bottom: var(--space-xl);
         }
         
         .wall-header h1 {
-            font-family: var(--font-heading);
+            font-family: var(--font-primary);
             font-size: clamp(36px, 5vw, 48px);
-            margin-bottom: var(--space-3);
+            font-weight: 600;
+            margin-bottom: var(--space-md);
+            color: var(--color-white);
         }
         
         .wall-header p {
             max-width: 600px;
             margin: 0 auto;
-            color: var(--color-text-secondary);
-            font-size: var(--text-body-size);
+            color: var(--color-text-primary);
+            font-size: var(--text-body-xl-size);
         }
         
-        /* Candle Grid - Matches Steps Grid */
+        /* Candle Grid - Same as Steps Grid */
         .wall-grid {
             display: grid;
-            gap: var(--space-3);
-            max-width: 1200px;
-            margin: 0 auto var(--space-6);
+            gap: var(--space-lg);
+            max-width: 1000px;
+            margin: 0 auto var(--space-xl);
         }
         
         @media (min-width: 640px) {
@@ -70,45 +72,42 @@
             }
         }
         
-        /* Candle Card - Matches Step Card */
-        .candle-card {
-            background: var(--color-bg-secondary);
-            border-radius: var(--card-radius);
-            padding: var(--space-5);
-            border: 1px solid var(--color-border-subtle);
+        /* Candle Card - Same as Step Card */
+        .wall-grid .candle-card {
+            background: var(--color-bg-surface);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
             text-align: center;
-            transition: transform var(--duration-base) var(--ease-out);
-            cursor: pointer;
+            transition: all 0.3s ease-in-out;
         }
         
-        .candle-card:hover {
+        .wall-grid .candle-card:hover {
             transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.1);
         }
         
-        .candle-card:active {
-            transform: scale(0.98);
-        }
-        
-        .candle-card img {
+        .wall-grid .candle-card img {
             width: 80px;
             height: 80px;
-            border-radius: 1000px;
-            margin-bottom: var(--space-3);
+            border-radius: var(--radius-full);
+            margin-bottom: var(--space-md);
             object-fit: cover;
-            box-shadow: var(--shadow-md);
         }
         
-        .candle-card .candle-number {
-            font-family: var(--font-heading);
+        .wall-grid .candle-card .candle-number {
+            font-family: var(--font-primary);
             font-size: 14px;
-            color: var(--color-accent);
-            margin-bottom: var(--space-2);
+            font-weight: 500;
+            color: var(--color-primary);
+            margin-bottom: var(--space-sm);
             letter-spacing: 0.05em;
         }
         
-        .candle-card .candle-date {
-            font-size: 14px;
-            color: var(--color-text-tertiary);
+        .wall-grid .candle-card .candle-date {
+            font-size: 12px;
+            color: var(--color-text-muted);
             text-transform: uppercase;
             letter-spacing: 0.1em;
         }
@@ -117,13 +116,13 @@
         .wall-loading {
             grid-column: 1 / -1;
             text-align: center;
-            padding: var(--space-10) var(--space-4);
-            color: var(--color-text-tertiary);
+            padding: 80px var(--space-lg);
+            color: var(--color-text-muted);
         }
         
         .wall-loading i {
             font-size: 32px;
-            margin-bottom: var(--space-3);
+            margin-bottom: var(--space-md);
             display: block;
         }
         
@@ -131,24 +130,24 @@
         .wall-empty {
             grid-column: 1 / -1;
             text-align: center;
-            padding: var(--space-10) var(--space-4);
+            padding: 80px var(--space-lg);
         }
         
         .wall-empty i {
             font-size: 48px;
             color: var(--color-text-muted);
-            margin-bottom: var(--space-4);
+            margin-bottom: var(--space-lg);
         }
         
         .wall-empty p {
-            color: var(--color-text-secondary);
-            margin-bottom: var(--space-4);
+            color: var(--color-text-primary);
+            margin-bottom: var(--space-lg);
         }
         
         /* View More Button */
         .wall-actions {
             text-align: center;
-            margin-top: var(--space-6);
+            margin-top: var(--space-xl);
         }
         
         .wall-actions .btn {
@@ -188,13 +187,13 @@
         /* Candle Count */
         .wall-count {
             text-align: center;
-            margin-bottom: var(--space-6);
-            font-size: var(--text-ui-size);
-            color: var(--color-text-tertiary);
+            margin-bottom: var(--space-xl);
+            font-size: 14px;
+            color: var(--color-text-muted);
         }
         
         .wall-count span {
-            color: var(--color-accent);
+            color: var(--color-primary);
             font-weight: 500;
         }
         
@@ -202,16 +201,16 @@
         @media (max-width: 639px) {
             .wall-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: var(--space-2);
+                gap: var(--space-md);
             }
             
-            .candle-card {
-                padding: var(--space-3);
+            .wall-grid .candle-card {
+                padding: var(--space-lg);
             }
             
-            .candle-card img {
-                width: 60px;
-                height: 60px;
+            .wall-grid .candle-card img {
+                width: 64px;
+                height: 64px;
             }
             
             .wall-header h1 {
@@ -221,7 +220,7 @@
         
         /* Touch-friendly targets */
         @media (pointer: coarse) {
-            .candle-card {
+            .wall-grid .candle-card {
                 -webkit-tap-highlight-color: transparent;
             }
             
@@ -233,7 +232,7 @@
         
         /* Reduced motion */
         @media (prefers-reduced-motion: reduce) {
-            .candle-card,
+            .wall-grid .candle-card,
             .wall-actions .btn {
                 transition: none;
             }
@@ -246,25 +245,25 @@
         /* Mobile Header - Hamburger */
         @media (max-width: 767px) {
             .logo span {
-                font-family: var(--font-heading);
+                font-family: var(--font-primary);
                 font-size: 24px;
-                font-weight: 500;
+                font-weight: 600;
                 letter-spacing: -0.02em;
             }
             
             .nav {
                 display: none;
                 position: fixed;
-                top: 72px;
+                top: 80px;
                 left: 0;
                 right: 0;
                 bottom: 0;
                 background: var(--color-bg-primary);
                 flex-direction: column;
-                align-items: center;
+                align-items: flex-start;
                 justify-content: flex-start;
-                padding-top: var(--space-8);
-                gap: var(--space-4);
+                padding: var(--space-xl) var(--space-lg);
+                gap: var(--space-md);
                 z-index: 99;
             }
             
@@ -273,8 +272,11 @@
             }
             
             .nav a {
-                font-size: 20px;
-                padding: var(--space-2) 0;
+                font-size: 18px;
+                padding: var(--space-md) 0;
+                color: var(--color-text-primary);
+                width: 100%;
+                border-bottom: 1px solid var(--color-border);
             }
             
             .hamburger {
@@ -284,7 +286,7 @@
                 gap: 5px;
                 width: 32px;
                 height: 32px;
-                background: none;
+                background: var(--color-bg-primary);
                 border: none;
                 cursor: pointer;
                 padding: 0;
@@ -294,7 +296,7 @@
                 display: block;
                 width: 24px;
                 height: 2px;
-                background: var(--color-text-primary);
+                background: var(--color-white);
                 transition: all 0.3s ease;
             }
             
@@ -392,7 +394,6 @@
         </div>
     </footer>
 
-    <!-- Scripts -->
     <script src="js/app.js"></script>
     <script>
         // Candle Wall Pagination
@@ -408,7 +409,6 @@
         // Load candles from API
         async function loadCandles() {
             try {
-                // Using staging collection for demo (replace with production when ready)
                 const response = await fetch('https://www.crossmint.com/api/2022-06-09/collections/7ac5706c-4ec7-43cb-b4ec-eb0e17054bf3/nfts?page=1&perPage=100');
                 const data = await response.json();
                 
@@ -431,24 +431,19 @@
             const end = (currentPage + 1) * CANDLES_PER_PAGE;
             const candlesToShow = allCandles.slice(start, end);
             
-            // Clear loading state on first render
             if (currentPage === 0) {
                 grid.innerHTML = '';
             }
             
-            // Render candles
             candlesToShow.forEach((nft, index) => {
-                // Skip if already rendered
                 if (grid.children[index]) return;
                 
                 const card = createCandleCard(nft, allCandles.length - index);
                 grid.appendChild(card);
             });
             
-            // Update count
             shownCountEl.textContent = candlesToShow.length;
             
-            // Show/hide View More button
             if (end < allCandles.length) {
                 viewMoreBtn.style.display = 'inline-flex';
                 viewMoreBtn.disabled = false;
@@ -475,7 +470,6 @@
                 <p class="candle-date">Lit: ${date}</p>
             `;
             
-            // Cards on public wall are not clickable - fullscreen only on My Candles page
             return card;
         }
         
@@ -484,7 +478,6 @@
             viewMoreBtn.disabled = true;
             viewMoreBtn.classList.add('loading');
             
-            // Simulate loading delay for better UX
             setTimeout(() => {
                 currentPage++;
                 renderPage();
@@ -515,8 +508,6 @@
             viewMoreBtn.style.display = 'none';
         }
         
-        // Note: Fullscreen view is only available on My Candles page for owned candles
-        // Public Candle Wall shows static grid only
         // Hamburger Menu
         document.getElementById('hamburger').addEventListener('click', function() {
             this.classList.toggle('active');
