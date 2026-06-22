@@ -32,7 +32,12 @@
                 <img src="assets/logo.png" alt="Everlit Candle" width="40" height="40">
                 <span>Everlit Candle</span>
             </a>
-            <nav class="nav">
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <nav class="nav" id="nav">
                 <a href="/">Home</a>
                 <a href="/wall.html">Candle Wall</a>
                 <a href="/mycandles.html">My Candles</a>
@@ -59,7 +64,7 @@
                         <button class="btn btn-primary btn-large" data-action="purchase" data-target="checkout">Light My Candle</button>
                         <a href="#why" class="btn btn-secondary btn-large" data-action="navigate" data-target="why-it-matters">Explore more</a>
                     </div>
-                    <p class="hero-meta">Permanent on-chain • Private prayer option • No crypto knowledge required</p>
+                    <p class="meta">Permanent on-chain • Private prayer option • No crypto knowledge required</p>
                 </div>
                 <div class="hero-visual hero-visual-desktop">
                     <img src="assets/EverlitCandle_animated.gif" alt="Everlit Candle" class="hero-logo">
@@ -78,7 +83,7 @@
                         <span class="counter-number" id="candle-counter">83</span>
                         <span class="counter-label">candles already glow forever</span>
                     </div>
-                      <p class="why-tagline">Because some lights should never go out.</p>
+                      <p class="why-tagline meta">Because some lights should never go out.</p>
                 </div>
             </div>
         </section>
@@ -91,7 +96,7 @@
                 <div class="peace-content">
                     <p class="peace-sublead">Just your candle, your prayer, and a moment of peace. Open any of your candles in full-screen mode for a peaceful, distraction-free experience.</p>
                     <a href="/mycandles.html" class="btn btn-primary">View My Candle</a>
-                    <p class="peace-note">One quiet minute can change the direction of your day.</p>
+                    <p class="peace-note meta">One quiet minute can change the direction of your day.</p>
                 </div>
             </div>
         </section>
@@ -111,7 +116,6 @@
                 <div class="wall-content" style="margin-top: var(--space-6);">
                     <div class="wall-actions">
                         <a href="/wall.html" class="btn btn-primary">Visit Candle Wall</a>
-                        <a href="/guide" class="btn btn-primary" data-action="navigate" data-target="wallet-guide">Easy Wallet Guide</a>
                     </div>
                 </div>
             </div>
@@ -371,6 +375,22 @@
             }
         }
     </style>
+    
+    <!-- Hamburger Menu Script -->
+    <script>
+        document.getElementById('hamburger').addEventListener('click', function() {
+            this.classList.toggle('active');
+            document.getElementById('nav').classList.toggle('active');
+        });
+        
+        // Close menu when clicking a link
+        document.querySelectorAll('.nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('hamburger').classList.remove('active');
+                document.getElementById('nav').classList.remove('active');
+            });
+        });
+    </script>
     
     <!-- Scripts -->
     <script src="https://unpkg.com/@crossmint/client-sdk-vanilla-ui@1.1.12/lib/index.global.js"></script>

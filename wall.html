@@ -242,6 +242,88 @@
                 animation: none;
             }
         }
+        
+        /* Mobile Header - Hamburger */
+        @media (max-width: 767px) {
+            .logo span {
+                font-family: var(--font-heading);
+                font-size: 24px;
+                font-weight: 500;
+                letter-spacing: -0.02em;
+            }
+            
+            .nav {
+                display: none;
+                position: fixed;
+                top: 72px;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: var(--color-bg-primary);
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                padding-top: var(--space-8);
+                gap: var(--space-4);
+                z-index: 99;
+            }
+            
+            .nav.active {
+                display: flex;
+            }
+            
+            .nav a {
+                font-size: 20px;
+                padding: var(--space-2) 0;
+            }
+            
+            .hamburger {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                gap: 5px;
+                width: 32px;
+                height: 32px;
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 0;
+            }
+            
+            .hamburger span {
+                display: block;
+                width: 24px;
+                height: 2px;
+                background: var(--color-text-primary);
+                transition: all 0.3s ease;
+            }
+            
+            .hamburger.active span:nth-child(1) {
+                transform: rotate(45deg) translate(5px, 5px);
+            }
+            
+            .hamburger.active span:nth-child(2) {
+                opacity: 0;
+            }
+            
+            .hamburger.active span:nth-child(3) {
+                transform: rotate(-45deg) translate(5px, -5px);
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .hamburger {
+                display: none;
+            }
+            
+            .nav {
+                display: flex !important;
+                position: static;
+                flex-direction: row;
+                padding: 0;
+                background: transparent;
+            }
+        }
     </style>
 </head>
 <body>
@@ -252,7 +334,12 @@
                 <img src="assets/logo.png" alt="Everlit Candle" width="40" height="40">
                 <span>Everlit Candle</span>
             </a>
-            <nav class="nav">
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <nav class="nav" id="nav">
                 <a href="/">Home</a>
                 <a href="/wall.html">Candle Wall</a>
                 <a href="/mycandles.html">My Candles</a>
@@ -430,6 +517,19 @@
         
         // Note: Fullscreen view is only available on My Candles page for owned candles
         // Public Candle Wall shows static grid only
+        // Hamburger Menu
+        document.getElementById('hamburger').addEventListener('click', function() {
+            this.classList.toggle('active');
+            document.getElementById('nav').classList.toggle('active');
+        });
+        
+        document.querySelectorAll('.nav a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('hamburger').classList.remove('active');
+                document.getElementById('nav').classList.remove('active');
+            });
+        });
+        
         // Initialize
         loadCandles();
     </script>

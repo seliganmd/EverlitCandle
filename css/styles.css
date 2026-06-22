@@ -160,15 +160,25 @@ h4 {
   color: var(--color-accent);
 }
 
-/* Hero meta, peace-note, why-tagline - same style */
-.hero-meta,
-.peace-note,
-.why-tagline {
+/* Meta text style - for taglines and secondary info */
+.meta {
   font-family: var(--font-body);
   font-size: 16px;
   color: var(--color-text-tertiary);
   font-style: italic;
   margin-top: var(--space-5);
+}
+
+/* Why It Matters */
+.why-tagline {
+  text-align: center;
+  margin: var(--space-5) 0;
+}
+
+/* Moment of Peace */
+.peace-note {
+  text-align: center;
+  margin: var(--space-5) 0;
 }
 
 p {
@@ -645,8 +655,9 @@ a {
 }
 
 .step-title {
-  font-family: var(--font-heading);
+  font-family: var(--font-body);
   font-size: 20px;
+  font-weight: 500;
   color: var(--color-text-primary);
   margin-bottom: var(--space-2);
 }
@@ -1092,6 +1103,17 @@ a {
   .hero-visual-desktop {
     display: none !important;
   }
+  
+  /* Mobile: Hero buttons same width */
+  .hero-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .hero-actions .btn {
+    width: 220px;
+    justify-content: center;
+  }
 }
 
 @media (min-width: 640px) {
@@ -1101,5 +1123,90 @@ a {
   
   .hero-visual-desktop {
     display: flex !important;
+  }
+}
+
+/* Mobile Header Styles */
+@media (max-width: 767px) {
+  /* Header logo as H1 style */
+  .logo span {
+    font-family: var(--font-heading);
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+  
+  /* Hamburger menu */
+  .nav {
+    display: none;
+    position: fixed;
+    top: 72px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--color-bg-primary);
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: var(--space-8);
+    gap: var(--space-4);
+    z-index: 99;
+  }
+  
+  .nav.active {
+    display: flex;
+  }
+  
+  .nav a {
+    font-size: 20px;
+    padding: var(--space-2) 0;
+  }
+  
+  /* Hamburger button */
+  .hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+  
+  .hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--color-text-primary);
+    transition: all 0.3s ease;
+  }
+  
+  .hamburger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+  
+  .hamburger.active span:nth-child(2) {
+    opacity: 0;
+  }
+  
+  .hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+  }
+}
+
+@media (min-width: 768px) {
+  .hamburger {
+    display: none;
+  }
+  
+  .nav {
+    display: flex !important;
+    position: static;
+    flex-direction: row;
+    padding: 0;
+    background: transparent;
   }
 }
