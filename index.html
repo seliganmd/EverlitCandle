@@ -50,6 +50,10 @@
                 <div class="hero-content">
                     <h4 class="hero-eyebrow">Digital Prayer Candles</h4>
                     <h1 class="hero-title">Some lights should never go out.</h1>
+                    <!-- Mobile: Animated logo between title and description -->
+                    <div class="hero-visual-mobile">
+                        <img src="assets/EverlitCandle_animated.gif" alt="Everlit Candle" class="hero-logo">
+                    </div>
                     <p class="hero-description">Light a unique prayer candle that lives permanently on-chain. Return anytime you need a quiet moment of peace.</p>
                     <div class="hero-actions">
                         <button class="btn btn-primary btn-large" data-action="purchase" data-target="checkout">Light My Candle</button>
@@ -57,7 +61,7 @@
                     </div>
                     <p class="hero-meta">Permanent on-chain • Private prayer option • No crypto knowledge required</p>
                 </div>
-                <div class="hero-visual">
+                <div class="hero-visual hero-visual-desktop">
                     <img src="assets/EverlitCandle_animated.gif" alt="Everlit Candle" class="hero-logo">
                 </div>
             </div>
@@ -85,8 +89,7 @@
                 <h4 class="section-eyebrow">Moment of Peace</h4>
                 <h2 class="section-title">No feed. No comments. No endless scrolling.</h2>
                 <div class="peace-content">
-                    <p class="peace-sublead">Just your candle, your prayer, and a moment of peace.</p>
-                    <p>Open any of your candles in full-screen mode for a peaceful, distraction-free experience.</p>
+                    <p class="peace-sublead">Just your candle, your prayer, and a moment of peace. Open any of your candles in full-screen mode for a peaceful, distraction-free experience.</p>
                     <a href="/mycandles.html" class="btn btn-primary">View My Candle</a>
                     <p class="peace-note">One quiet minute can change the direction of your day.</p>
                 </div>
@@ -108,7 +111,7 @@
                 <div class="wall-content" style="margin-top: var(--space-6);">
                     <div class="wall-actions">
                         <a href="/wall.html" class="btn btn-primary">Visit Candle Wall</a>
-                        <a href="/guide" class="btn btn-secondary" data-action="navigate" data-target="wallet-guide">Easy Wallet Guide</a>
+                        <a href="/guide" class="btn btn-primary" data-action="navigate" data-target="wallet-guide">Easy Wallet Guide</a>
                     </div>
                 </div>
             </div>
@@ -153,8 +156,7 @@
                 <h4 class="section-eyebrow">Your Wallet</h4>
                 <h2 class="section-title">True Ownership</h2>
                 <div class="ownership-content">
-                    <p>Your NFT candle is permanently minted on the Solana blockchain and belongs to you. We create and manage a wallet for you automatically.</p>
-                    <p>No crypto knowledge required. You can later transfer your candle to your personal wallet.</p>
+                    <p>Your NFT candle is permanently minted on the Solana blockchain and belongs to you. We create and manage a wallet for you automatically. No crypto knowledge required. You can later transfer your candle to your personal wallet.</p>
                     <a href="/guide" class="btn btn-secondary" data-action="navigate" data-target="wallet-guide">Easy Wallet Guide</a>
                 </div>
             </div>
@@ -315,12 +317,19 @@
         }
         
         .wall-preview-grid .candle-card {
-            background: var(--color-bg-secondary);
+            background: var(--color-bg-primary);
             border-radius: var(--card-radius);
             padding: var(--space-4);
             border: 1px solid var(--color-border-subtle);
             text-align: center;
             transition: transform var(--duration-base) var(--ease-out);
+            width: 232px;
+            height: 366px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
         }
         
         .wall-preview-grid .candle-card:hover {
@@ -384,13 +393,14 @@
                         const number = candles.length - index;
                         const date = new Date(nft.onChain?.timestamp || Date.now()).toLocaleDateString('en-US', {
                             month: 'short', 
-                            day: 'numeric'
+                            day: 'numeric',
+                            year: 'numeric'
                         });
                         return `
                             <div class="candle-card">
                                 <img src="assets/logo.png" alt="Everlit Candle #${number}" loading="lazy">
                                 <p class="candle-number">Candle #${number}</p>
-                                <p class="candle-date">${date}</p>
+                                <p class="candle-date">Lit: ${date}</p>
                             </div>
                         `;
                     }).join('');

@@ -43,9 +43,9 @@
   --space-16: 128px;
   --space-20: 160px;
   
-  /* Typography Scale — Strict H1/H2/H4/Body */
+  /* Typography Scale — Strict H1/H2 only use EB Garamond */
   --font-heading: 'EB Garamond', Georgia, serif;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Inter Display', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   
   /* H1: Hero only */
   --text-h1-size: clamp(48px, 8vw, 72px);
@@ -158,6 +158,17 @@ h4 {
   font-weight: var(--text-h4-weight);
   text-transform: uppercase;
   color: var(--color-accent);
+}
+
+/* Hero meta, peace-note, why-tagline - same style */
+.hero-meta,
+.peace-note,
+.why-tagline {
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--color-text-tertiary);
+  font-style: italic;
+  margin-top: var(--space-5);
 }
 
 p {
@@ -425,6 +436,11 @@ a {
   background: var(--color-bg-secondary);
 }
 
+.why-tagline {
+  text-align: center;
+  margin: var(--space-5) 0;
+}
+
 .why-content {
   max-width: var(--container-narrow);
   margin: 0 auto;
@@ -476,6 +492,11 @@ a {
   text-align: center;
 }
 
+.peace-note {
+  text-align: center;
+  margin: var(--space-5) 0;
+}
+
 .peace-content {
   max-width: var(--container-narrow);
   margin: 0 auto;
@@ -504,6 +525,19 @@ a {
 /* Candle Wall */
 .wall {
   background: var(--color-bg-secondary);
+}
+
+/* Candle Cards - Fixed size and black background */
+.wall-grid .candle-card,
+.wall-preview-grid .candle-card {
+  width: 232px;
+  height: 366px;
+  background: var(--color-bg-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
 }
 
 .wall-content {
@@ -1041,4 +1075,31 @@ a {
 ::selection {
   background: var(--color-accent-subtle);
   color: var(--color-accent);
+}
+
+/* Mobile: Hero logo between title and description */
+@media (max-width: 639px) {
+  .hero-visual-mobile {
+    display: block;
+    text-align: center;
+    margin: var(--space-4) 0;
+  }
+  
+  .hero-visual-mobile .hero-logo {
+    max-width: 200px;
+  }
+  
+  .hero-visual-desktop {
+    display: none !important;
+  }
+}
+
+@media (min-width: 640px) {
+  .hero-visual-mobile {
+    display: none !important;
+  }
+  
+  .hero-visual-desktop {
+    display: flex !important;
+  }
 }
