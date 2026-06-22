@@ -303,22 +303,12 @@
     <!-- Inline Styles for Wall Preview -->
     <style>
         .wall-preview-grid {
-            display: grid;
-            gap: var(--space-3);
-            max-width: 1000px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 24px;
+            max-width: 1200px;
             margin: var(--space-6) auto 0;
-        }
-        
-        @media (min-width: 480px) {
-            .wall-preview-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        
-        @media (min-width: 768px) {
-            .wall-preview-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
         }
         
         .wall-preview-grid .candle-card {
@@ -335,7 +325,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin: 0 auto;
+            flex: 0 0 232px;
         }
         
         .wall-preview-grid .candle-card:hover {
