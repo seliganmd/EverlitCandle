@@ -14,8 +14,8 @@
   --color-bg-surface: #1e1c19;
   --color-bg-surface-hover: #26231f;
   --color-border: #2e2b26;
-  --color-primary: #C9A227;
-  --color-primary-glow: rgba(201, 162, 39, 0.4);
+  --color-primary: #db9e48;
+  --color-primary-glow: rgba(219, 158, 72, 0.4);
   --color-text-primary: #c9c5be;
   --color-text-muted: #8f8c85;
   --color-white: #ffffff;
@@ -113,11 +113,11 @@ body {
    ============================================ */
 
 h1, .display-xl {
-  font-family: var(--font-primary);
-  font-size: clamp(40px, 8vw, var(--text-display-xl-size));
-  line-height: var(--text-display-xl-line);
-  font-weight: var(--text-display-xl-weight);
-  letter-spacing: var(--text-display-xl-tracking);
+  font-family: var(--font-secondary);
+  font-size: 72px;
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   color: var(--color-white);
 }
 
@@ -1079,10 +1079,11 @@ a {
     gap: 5px;
     width: 32px;
     height: 32px;
-    background: var(--color-bg-primary);
+    background: #141311;
     border: none;
     cursor: pointer;
     padding: 0;
+    z-index: 101;
   }
   
   .hamburger span {
