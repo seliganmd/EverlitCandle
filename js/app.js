@@ -154,27 +154,14 @@ function initFormHandling() {
 }
 
 /**
- * Load Candle Wall - Fetch public candles from Crossmint
+ * Load Candle Wall - Show demo candles (Crossmint deprecated)
  */
 async function loadCandleWall() {
     const wallContainer = document.getElementById('wall-preview');
     if (!wallContainer) return;
     
-    try {
-        const response = await fetch(`${CONFIG.API_BASE}/collections/${CONFIG.COLLECTION_ID}/nfts?page=1&perPage=8`);
-        const data = await response.json();
-        
-        if (Array.isArray(data) && data.length > 0) {
-            renderCandleWall(data, wallContainer);
-            updateCounter(data.length);
-        } else {
-            // Show placeholder/demo candles
-            renderDemoCandles(wallContainer);
-        }
-    } catch (error) {
-        console.error('Failed to load candle wall:', error);
-        renderDemoCandles(wallContainer);
-    }
+    // Crossmint no longer available - show demo candles
+    renderDemoCandles(wallContainer);
 }
 
 function renderCandleWall(nfts, container) {

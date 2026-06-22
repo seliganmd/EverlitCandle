@@ -212,7 +212,7 @@
             }
             
             .nav {
-                display: none;
+                display: flex;
                 position: fixed;
                 top: 80px;
                 left: 0;
@@ -225,10 +225,11 @@
                 padding: 40px 24px;
                 gap: 8px;
                 z-index: 98;
+                visibility: hidden;
             }
             
             .nav.active {
-                display: flex;
+                visibility: visible;
             }
             
             .nav a {
