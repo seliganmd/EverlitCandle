@@ -128,7 +128,7 @@ h1, .display-xl {
 }
 
 h2, .display-lg {
-  font-family: var(--font-primary);
+  font-family: var(--font-secondary);
   font-size: clamp(32px, 5vw, var(--text-display-lg-size));
   line-height: var(--text-display-lg-line);
   font-weight: var(--text-display-lg-weight);
