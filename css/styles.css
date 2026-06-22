@@ -29,8 +29,8 @@
   --space-xl: 32px;
   --space-section: 128px;
   
-  /* Typography - Inter for everything */
-  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Typography - Inter for everything, Playfair for editorial */
+  --font-primary: 'Inter', 'Inter Display', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-secondary: 'Playfair Display', Georgia, serif;
   
   /* Display XL (H1) */
