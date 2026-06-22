@@ -2,7 +2,7 @@
   "name": "everlit-candle-functions",
   "description": "Everlit Candle Firebase Functions",
   "engines": {
-    "node": "20"
+    "node": "22"
   },
   "main": "index.js",
   "dependencies": {
