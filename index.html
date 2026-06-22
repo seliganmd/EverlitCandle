@@ -322,19 +322,15 @@
         }
         
         .wall-preview-grid .candle-card {
-            background: var(--color-bg-primary);
-            border-radius: var(--card-radius);
-            padding: var(--space-4);
-            border: 1px solid var(--color-border-subtle);
+            background: #1e1c19;
+            border-radius: 24px;
+            padding: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
             text-align: center;
-            transition: transform var(--duration-base) var(--ease-out);
-            width: 232px;
-            height: 366px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            transition: all 0.3s ease-in-out;
             margin: 0 auto;
+            max-width: 280px;
         }
         
         .wall-preview-grid .candle-card:hover {

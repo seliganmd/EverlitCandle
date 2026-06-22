@@ -74,13 +74,15 @@
         
         /* Candle Card - Same as Step Card */
         .wall-grid .candle-card {
-            background: var(--color-bg-surface);
-            border-radius: var(--radius-xl);
-            padding: var(--space-xl);
+            background: #1e1c19;
+            border-radius: 24px;
+            padding: 32px;
             border: 1px solid rgba(255, 255, 255, 0.05);
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
             text-align: center;
             transition: all 0.3s ease-in-out;
+            margin: 0 auto;
+            max-width: 280px;
         }
         
         .wall-grid .candle-card:hover {
@@ -245,8 +247,8 @@
         /* Mobile Header - Hamburger */
         @media (max-width: 767px) {
             .logo span {
-                font-family: var(--font-primary);
-                font-size: 24px;
+                font-family: 'Playfair Display', Georgia, serif;
+                font-size: 22px;
                 font-weight: 600;
                 letter-spacing: -0.02em;
             }
@@ -258,7 +260,7 @@
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background: var(--color-bg-primary);
+                background: #141311;
                 flex-direction: column;
                 align-items: flex-start;
                 justify-content: flex-start;
@@ -286,10 +288,11 @@
                 gap: 5px;
                 width: 32px;
                 height: 32px;
-                background: var(--color-bg-primary);
+                background: transparent;
                 border: none;
                 cursor: pointer;
                 padding: 0;
+                z-index: 101;
             }
             
             .hamburger span {
