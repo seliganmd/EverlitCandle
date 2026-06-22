@@ -14,8 +14,8 @@
   --color-bg-surface: #1e1c19;
   --color-bg-surface-hover: #26231f;
   --color-border: #2e2b26;
-  --color-primary: #db9e48;
-  --color-primary-glow: rgba(219, 158, 72, 0.4);
+  --color-primary: #e49729;
+  --color-primary-glow: rgba(228, 151, 41, 0.4);
   --color-text-primary: #c9c5be;
   --color-text-muted: #8f8c85;
   --color-white: #ffffff;
@@ -121,6 +121,12 @@ h1, .display-xl {
   color: var(--color-white);
 }
 
+@media (max-width: 639px) {
+  h1, .display-xl {
+    font-size: 48px;
+  }
+}
+
 h2, .display-lg {
   font-family: var(--font-primary);
   font-size: clamp(32px, 5vw, var(--text-display-lg-size));
@@ -215,7 +221,10 @@ a {
   align-items: center;
   gap: var(--space-sm);
   color: var(--color-white);
-  font-family: var(--font-primary);
+}
+
+.logo span {
+  font-family: var(--font-secondary);
   font-size: 20px;
   font-weight: 600;
 }
@@ -1079,7 +1088,7 @@ a {
     gap: 5px;
     width: 32px;
     height: 32px;
-    background: #141311;
+    background: transparent;
     border: none;
     cursor: pointer;
     padding: 0;
