@@ -397,58 +397,24 @@
     </script>
     
     <!-- Scripts -->
-    <script src="https://unpkg.com/@crossmint/client-sdk-vanilla-ui@1.1.12/lib/index.global.js"></script>
     <script src="js/app.js"></script>
     
-    <!-- Load Wall Preview -->
+    <!-- Load Wall Preview - Demo Candles -->
     <script>
-        // Load preview candles for home page (show first 4)
-        async function loadWallPreview() {
+        // Show demo candles (Crossmint deprecated)
+        function loadWallPreview() {
             const grid = document.getElementById('wall-preview');
+            if (!grid) return;
             
-            try {
-                const response = await fetch('https://www.crossmint.com/api/2022-06-09/collections/7ac5706c-4ec7-43cb-b4ec-eb0e17054bf3/nfts?page=1&perPage=4');
-                const data = await response.json();
-                
-                if (Array.isArray(data) && data.length > 0) {
-                    const candles = data.filter(nft => nft.metadata?.image).slice(0, 4);
-                    
-                    grid.innerHTML = candles.map((nft, index) => {
-                        const number = candles.length - index;
-                        const date = new Date(nft.onChain?.timestamp || Date.now()).toLocaleDateString('en-US', {
-                            month: 'short', 
-                            day: 'numeric',
-                            year: 'numeric'
-                        });
-                        return `
-                            <div class="candle-card">
-                                <img src="assets/logo.png" alt="Everlit Candle #${number}" loading="lazy">
-                                <p class="candle-number">Candle #${number}</p>
-                                <p class="candle-date">Lit: ${date}</p>
-                            </div>
-                        `;
-                    }).join('');
-                } else {
-                    // Show placeholder candles if none exist
-                    grid.innerHTML = Array(4).fill(0).map((_, i) => `
-                        <div class="candle-card">
-                            <img src="assets/logo.png" alt="Everlit Candle" loading="lazy" style="opacity: 0.5;">
-                            <p class="candle-number">Awaiting</p>
-                            <p class="candle-date">Be the first</p>
-                        </div>
-                    `).join('');
-                }
-            } catch (error) {
-                console.error('Failed to load wall preview:', error);
-                // Silent fail - show placeholder
-                grid.innerHTML = Array(4).fill(0).map((_, i) => `
-                    <div class="candle-card">
-                        <img src="assets/logo.png" alt="Everlit Candle" loading="lazy">
-                        <p class="candle-number">Awaiting</p>
-                        <p class="candle-date">Be the first</p>
-                    </div>
-                `).join('');
-            }
+            const demoDates = ['Jun 22, 2026', 'Jun 21, 2026', 'Jun 20, 2026', 'Jun 19, 2026'];
+            
+            grid.innerHTML = demoDates.map((date, i) => `
+                <div class="candle-card">
+                    <span class="candle-prayer-meta">My prayer, memory, hope, or intention</span>
+                    <img src="assets/logo.png" alt="Everlit Candle #${i + 1}" loading="lazy">
+                    <p class="candle-date">Lit: ${date}</p>
+                </div>
+            `).join('');
         }
         
         // Load preview when DOM is ready
