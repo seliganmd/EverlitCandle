@@ -1044,10 +1044,10 @@ a {
     justify-content: center;
   }
   
-  /* Header logo as H1 style */
+  /* Header logo - Playfair Display */
   .logo span {
-    font-family: var(--font-primary);
-    font-size: 24px;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 22px;
     font-weight: 600;
     letter-spacing: -0.02em;
   }
@@ -1060,18 +1060,16 @@ a {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(20, 19, 17, 0.98);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: #141311;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     justify-content: flex-start;
-    padding: 60px 24px 40px;
-    gap: 0;
+    padding: 40px 24px;
+    gap: 8px;
     z-index: 98;
     opacity: 1;
     visibility: hidden;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s ease;
   }
   
   .nav.active {
@@ -1080,16 +1078,16 @@ a {
   }
   
   .nav a {
-    font-size: 32px;
-    font-weight: 300;
-    padding: var(--space-md) 0;
-    color: var(--color-text-primary);
-    text-align: center;
+    font-size: 16px;
+    font-weight: 400;
+    padding: 12px 0;
+    color: var(--color-white);
+    text-align: left;
     border: none;
-    letter-spacing: -0.01em;
-    transition: all 0.3s ease;
+    letter-spacing: 0;
+    transition: all 0.2s ease;
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateX(-20px);
   }
   
   .nav.active a {
@@ -1106,7 +1104,6 @@ a {
   
   .nav a:hover {
     color: var(--color-primary);
-    transform: translateX(10px);
   }
   
   /* Modern hamburger - animated */
