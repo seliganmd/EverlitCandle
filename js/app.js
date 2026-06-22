@@ -202,10 +202,11 @@ function renderDemoCandles(container) {
         'Jun 14, 2026'
     ];
     
-    container.innerHTML = demoDates.map(date => `
+    container.innerHTML = demoDates.map((date, index) => `
         <div class="candle-card">
-            <img src="https://crossmint.myfilebase.com/ipfs/QmeBxmYGM9hV5JcVQKcVq3jiKSzbXctpxm5QyY3fffYud3" alt="Everlit Candle">
-            <span class="date">${date}</span>
+            <span class="candle-prayer-meta">My prayer, memory, hope, or intention</span>
+            <img src="assets/logo.png" alt="Everlit Candle">
+            <span class="candle-date">${date}</span>
         </div>
     `).join('');
 }

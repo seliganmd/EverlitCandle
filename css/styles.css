@@ -491,6 +491,7 @@ a {
   gap: var(--space-lg);
   max-width: 1000px;
   margin: var(--space-xl) auto 0;
+  justify-items: center;
 }
 
 @media (min-width: 640px) {
@@ -511,6 +512,7 @@ a {
   gap: var(--space-lg);
   max-width: 1200px;
   margin: 0 auto;
+  justify-items: center;
 }
 
 @media (min-width: 640px) {
@@ -579,6 +581,15 @@ a {
 
 .candle-card .candle-date::before {
   content: 'Lit: ';
+}
+
+.candle-card .candle-prayer-meta {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-style: italic;
+  margin-bottom: 12px;
+  line-height: 1.4;
+  max-width: 180px;
 }
 
 /* How It Works */

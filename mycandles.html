@@ -158,6 +158,15 @@
             content: 'Lit: ';
         }
         
+        .candles-grid .candle-card .candle-prayer-meta {
+            font-size: 12px;
+            color: var(--color-text-muted);
+            font-style: italic;
+            margin-bottom: 12px;
+            line-height: 1.4;
+            max-width: 180px;
+        }
+        
         /* Empty State */
         .empty-state {
             grid-column: 1 / -1;
@@ -408,10 +417,9 @@
             
             grid.innerHTML = allCandles.map((candle, index) => `
                 <div class="candle-card" onclick="openFullscreen(${index})">
+                    <span class="candle-prayer-meta">${candle.prayer || 'My prayer, memory, hope, or intention'}</span>
                     <img src="${candle.image}" alt="Everlit Candle #${index + 1}">
-                    <p class="candle-number">Candle #${index + 1}</p>
-                    <p class="candle-prayer">${candle.prayer}</p>
-                    <p class="candle-date">${candle.date}</p>
+                    <p class="candle-date">${candle.date.replace('Lit on ', 'Lit: ')}</p>
                 </div>
             `).join('');
         }
