@@ -322,53 +322,70 @@
         }
         
         .wall-preview-grid .candle-card {
-            background: #1e1c19;
+            background: #141311;
             border-radius: 24px;
-            padding: 32px;
+            padding: 24px;
             border: 1px solid rgba(255, 255, 255, 0.05);
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
             text-align: center;
             transition: all 0.3s ease-in-out;
+            width: 232px;
+            height: 366px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             margin: 0 auto;
-            max-width: 280px;
         }
         
         .wall-preview-grid .candle-card:hover {
             transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.1);
         }
         
         .wall-preview-grid .candle-card img {
-            width: 64px;
-            height: 64px;
-            border-radius: 1000px;
-            margin-bottom: var(--space-2);
+            width: 80px;
+            height: 80px;
+            border-radius: 999px;
+            margin-bottom: 16px;
             object-fit: cover;
-            box-shadow: var(--shadow-md);
         }
         
         .wall-preview-grid .candle-number {
-            font-family: var(--font-heading);
-            font-size: 12px;
-            color: var(--color-accent);
-            margin-bottom: var(--space-1);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--color-primary);
+            margin-bottom: 8px;
             letter-spacing: 0.05em;
         }
         
         .wall-preview-grid .candle-date {
             font-size: 12px;
-            color: var(--color-text-tertiary);
-            text-transform: uppercase;
+            color: #8f8c85;
             letter-spacing: 0.1em;
         }
         
+        .wall-preview-grid .candle-date::before {
+            content: 'Lit: ';
+        }
+        
         @media (max-width: 767px) {
+            .wall-preview-grid {
+                gap: 16px;
+            }
+            
             .wall-preview-grid .candle-card {
-                padding: var(--space-3);
+                width: 100%;
+                max-width: 200px;
+                height: auto;
+                min-height: 280px;
+                padding: 20px;
             }
             
             .wall-preview-grid .candle-card img {
-                width: 48px;
-                height: 48px;
+                width: 64px;
+                height: 64px;
             }
         }
     </style>
