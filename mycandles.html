@@ -212,7 +212,7 @@
             }
             
             .nav {
-                display: flex;
+                display: none;
                 position: fixed;
                 top: 80px;
                 left: 0;
@@ -225,25 +225,10 @@
                 padding: 40px 24px;
                 gap: 8px;
                 z-index: 98;
-                opacity: 0;
-                visibility: hidden;
-                transition: opacity 0.2s ease, visibility 0.2s ease;
             }
             
             .nav.active {
-                opacity: 1;
-                visibility: visible;
-            }
-            
-            .nav a {
-                opacity: 0;
-                transform: translateX(-10px);
-                transition: opacity 0.2s ease, transform 0.2s ease, color 0.2s ease;
-            }
-            
-            .nav.active a {
-                opacity: 1;
-                transform: translateX(0);
+                display: flex;
             }
             
             .nav a {

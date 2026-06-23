@@ -540,9 +540,9 @@ a {
   width: 80px;
   height: 80px;
   border-radius: 999px;
-  margin-top: 20px;
-  margin-bottom: auto;
+  margin: 0 auto;
   object-fit: cover;
+  display: block;
 }
 
 .candle-card .candle-number {
