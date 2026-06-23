@@ -225,11 +225,25 @@
                 padding: 40px 24px;
                 gap: 8px;
                 z-index: 98;
+                opacity: 0;
                 visibility: hidden;
+                transition: opacity 0.2s ease, visibility 0.2s ease;
             }
             
             .nav.active {
+                opacity: 1;
                 visibility: visible;
+            }
+            
+            .nav a {
+                opacity: 0;
+                transform: translateX(-10px);
+                transition: opacity 0.2s ease, transform 0.2s ease, color 0.2s ease;
+            }
+            
+            .nav.active a {
+                opacity: 1;
+                transform: translateX(0);
             }
             
             .nav a {
@@ -357,9 +371,7 @@
 
     <!-- Fullscreen Modal -->
     <div class="fullscreen-modal" id="fullscreen-modal" style="display: none; position: fixed; inset: 0; z-index: 300; background: var(--color-bg-primary); align-items: center; justify-content: center;">
-        <button class="fullscreen-close" onclick="closeFullscreen()" style="position: absolute; top: var(--space-4); right: var(--space-4); background: none; border: none; color: var(--color-text-tertiary); font-size: 32px; cursor: pointer; padding: var(--space-2); transition: color var(--duration-fast) var(--ease-out);">
-            <i class="ph ph-x"></i>
-        </button>
+        <button class="fullscreen-close" onclick="closeFullscreen()">Close</button>
         <div style="text-align: center; max-width: 800px; padding: var(--space-6);">
             <img src="" alt="Your Everlit Candle" id="fullscreen-candle" style="width: 50vw; max-width: 400px; height: auto; border-radius: 1000px; box-shadow: var(--shadow-glow); margin-bottom: var(--space-6);">
             <p id="fullscreen-prayer" style="font-family: var(--font-heading); font-size: clamp(20px, 3vw, 28px); color: var(--color-text-primary); margin-bottom: var(--space-2); line-height: 1.4;"></p>

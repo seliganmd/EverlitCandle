@@ -1,14 +1,22 @@
 /**
  * Everlit Candle - Firebase Functions
- * Stripe Checkout (Simplified)
+ * Stripe Checkout Integration
  */
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const Stripe = require('stripe');
 
 // Initialize Firebase Admin
 admin.initializeApp();
 const db = admin.firestore();
+
+// Initialize Stripe with secret key from config
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || functions.config().stripe?.secret_key, {
+  apiVersion: '2024-04-10',
+});
+
+const NFT_PRICE_USD = 7.00;
 
 // Simple CORS handler
 const corsHandler = (req, res, callback) => {
@@ -36,7 +44,8 @@ exports.health = functions.https.onRequest((req, res) => {
     return res.status(200).json({
       status: 'ok',
       timestamp: new Date().toISOString(),
-      message: 'Everlit Candle API is running'
+      message: 'Everlit Candle API is running',
+      stripeConfigured: !!process.env.STRIPE_SECRET_KEY || !!functions.config().stripe?.secret_key
     });
   });
 });
@@ -72,13 +81,42 @@ exports.createCheckoutSession = functions.https.onRequest((req, res) => {
 
       await candleRef.set(candleData);
 
-      // For now, return a mock session URL
-      // TODO: Integrate Stripe SDK after deployment works
+      // Create Stripe Checkout Session
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        customer_email: email,
+        line_items: [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'Everlit Candle',
+              description: 'A unique digital prayer candle on Solana blockchain',
+              images: ['https://everlitcandle.com/assets/logo.png'],
+            },
+            unit_amount: Math.round(NFT_PRICE_USD * 100), // $7.00 in cents
+          },
+          quantity: 1,
+        }],
+        mode: 'payment',
+        success_url: `https://everlitcandle.com/mycandles.html?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `https://everlitcandle.com/?canceled=true`,
+        metadata: {
+          candleId: candleRef.id,
+          email: email,
+          prayer: prayer.substring(0, 100),
+        },
+      });
+
+      // Update candle with session ID
+      await candleRef.update({
+        stripeSessionId: session.id,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
       return res.status(200).json({
-        sessionId: 'mock_session_' + candleRef.id,
-        url: 'https://checkout.stripe.com/pay/mock',
+        sessionId: session.id,
+        url: session.url,
         candleId: candleRef.id,
-        message: 'Stripe integration pending - candle created'
       });
 
     } catch (error) {
@@ -98,8 +136,50 @@ exports.stripeWebhook = functions.https.onRequest((req, res) => {
       return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // For now, just acknowledge
-    // TODO: Add Stripe signature verification
+    const sig = req.headers['stripe-signature'];
+    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET || functions.config().stripe?.webhook_secret;
+
+    let event;
+
+    try {
+      // Verify webhook signature
+      event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret);
+    } catch (err) {
+      console.error('Webhook signature verification failed:', err.message);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    // Handle checkout.session.completed
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      const candleId = session.metadata?.candleId;
+
+      if (candleId) {
+        try {
+          // Update candle status
+          await db.collection('candles').doc(candleId).update({
+            status: 'payment_completed',
+            stripePaymentIntentId: session.payment_intent,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+
+          console.log(`Payment completed for candle ${candleId}`);
+          
+          // TODO: Trigger NFT minting here
+          // For now, mark as minted (placeholder)
+          await db.collection('candles').doc(candleId).update({
+            status: 'minted',
+            nftMintAddress: `CANDLE_${Date.now()}`,
+            mintedAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+
+        } catch (error) {
+          console.error('Error processing payment completion:', error);
+        }
+      }
+    }
+
     return res.status(200).json({ received: true });
   });
 });
@@ -131,6 +211,7 @@ exports.getUserCandles = functions.https.onRequest((req, res) => {
         ...doc.data(),
         createdAt: doc.data().createdAt?.toDate()?.toISOString(),
         updatedAt: doc.data().updatedAt?.toDate()?.toISOString(),
+        mintedAt: doc.data().mintedAt?.toDate()?.toISOString(),
       }));
 
       return res.status(200).json({ candles });
@@ -157,6 +238,8 @@ exports.getPublicCandles = functions.https.onRequest((req, res) => {
 
       const candlesSnapshot = await db.collection('candles')
         .where('isPublic', '==', true)
+        .where('status', '==', 'minted')
+        .orderBy('mintedAt', 'desc')
         .limit(limit)
         .get();
 
@@ -165,7 +248,7 @@ exports.getPublicCandles = functions.https.onRequest((req, res) => {
         return {
           id: doc.id,
           prayer: data.prayer,
-          createdAt: data.createdAt?.toDate()?.toISOString(),
+          mintedAt: data.mintedAt?.toDate()?.toISOString(),
         };
       });
 
