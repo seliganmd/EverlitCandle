@@ -642,19 +642,42 @@ a {
   background: var(--color-bg-surface);
 }
 
-.ownership-content {
-  max-width: 720px;
-  margin: 0 auto;
+.ownership-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-xl);
+  max-width: 1000px;
+  margin: 0 auto var(--space-xl);
+}
+
+.ownership-item {
+  text-align: center;
+  padding: var(--space-lg);
+}
+
+.ownership-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: var(--space-md);
+  opacity: 0.9;
+}
+
+.ownership-item p {
+  font-size: 15px;
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.ownership-cta {
   text-align: center;
 }
 
-.ownership-content p {
-  margin-bottom: var(--space-md);
-  color: var(--color-text-primary);
-}
-
-.ownership-content .btn {
-  margin-top: var(--space-md);
+@media (max-width: 768px) {
+  .ownership-features {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
 }
 
 /* FAQ */

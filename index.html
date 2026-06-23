@@ -55,7 +55,7 @@
             <div class="container">
                 <div class="hero-content">
                     <h4 class="hero-eyebrow">Digital Prayer Candles</h4>
-                    <h1 class="hero-title">Some lights should never go out.</h1>
+                    <h1 class="hero-title">Some lights should <em>never</em> go out.</h1>
                     <!-- Mobile: Animated logo between title and description -->
                     <div class="hero-visual-mobile">
                         <img src="assets/EverlitCandle_animated.gif" alt="Everlit Candle" class="hero-logo">
@@ -107,7 +107,7 @@
             <div class="container">
                 <h4 class="section-eyebrow">Candle Wall</h4>
                 <h2 class="section-title">Your Prayer Has a Place</h2>
-                <p class="section-subtitle">Every candle can appear anonymously on the Candle Wall, creating a living space of faith, hope, and remembrance. Or keep it private.</p>
+                <p class="section-subtitle">Every candle can appear anonymously on the Candle Wall, creating a living space of faith, hope, and remembrance. Or remain private.</p>
                 
                 <!-- Preview Grid -->
                 <div class="wall-preview-grid" id="wall-preview">
@@ -160,9 +160,22 @@
             <div class="container">
                 <h4 class="section-eyebrow">Your Wallet</h4>
                 <h2 class="section-title">True Ownership</h2>
-                <div class="ownership-content">
-                    <p class="body-xl">Your NFT candle is permanently minted on the Solana blockchain and belongs to you. We create and manage a wallet for you automatically. No crypto knowledge required. You can later transfer your candle to your personal wallet.</p>
-                    <a href="/guide" class="btn btn-secondary" data-action="navigate" data-target="wallet-guide">Easy Wallet Guide</a>
+                <div class="ownership-features">
+                    <div class="ownership-item">
+                        <img src="assets/solana.svg" alt="Solana" class="ownership-icon">
+                        <p>Your NFT candle is permanently minted on the Solana blockchain and belongs to you.</p>
+                    </div>
+                    <div class="ownership-item">
+                        <img src="assets/crypto-wallet.svg" alt="Wallet" class="ownership-icon">
+                        <p>We create and manage a wallet for you automatically. No crypto knowledge required.</p>
+                    </div>
+                    <div class="ownership-item">
+                        <img src="assets/candle-transfer.svg" alt="Transfer" class="ownership-icon">
+                        <p>You can later transfer your candle to your personal wallet.</p>
+                    </div>
+                </div>
+                <div class="ownership-cta">
+                    <a href="/guide.html" class="btn btn-secondary" data-action="navigate" data-target="wallet-guide">My Wallet Guide</a>
                 </div>
             </div>
         </section>
@@ -354,9 +367,7 @@
             letter-spacing: 0.1em;
         }
         
-        .wall-preview-grid .candle-date::before {
-            content: 'Lit: ';
-        }
+
         
         @media (max-width: 767px) {
             .wall-preview-grid {
