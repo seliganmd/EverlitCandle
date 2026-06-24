@@ -380,6 +380,29 @@ a {
   border-radius: var(--radius-full);
 }
 
+/* Hero Video Styles */
+.hero-visual video {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 60px rgba(228, 151, 41, 0.3);
+}
+
+.hero-video-mobile {
+  display: none;
+  text-align: center;
+  margin: var(--space-lg) 0;
+}
+
+.hero-video-mobile video {
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 40px rgba(228, 151, 41, 0.25);
+}
+
 /* ============================================
    8. SECTION COMPONENTS
    ============================================ */
@@ -1048,15 +1071,9 @@ a {
    ============================================ */
 
 @media (max-width: 767px) {
-  /* Mobile: Hero logo between title and description */
-  .hero-visual-mobile {
+  /* Mobile: Hero video under title */
+  .hero-video-mobile {
     display: block;
-    text-align: center;
-    margin: var(--space-lg) 0;
-  }
-  
-  .hero-visual-mobile .hero-logo {
-    max-width: 200px;
   }
   
   .hero-visual-desktop {
