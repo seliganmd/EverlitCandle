@@ -562,8 +562,8 @@ a {
 .candle-card .candle-img {
   width: 160px;
   height: 160px;
-  border-radius: 12px;
-  margin: 0 auto;
+  border-radius: 18px;
+  margin: auto;
   object-fit: cover;
   display: block;
 }
