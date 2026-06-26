@@ -299,10 +299,19 @@ exports.getPublicCandles = functions.https.onRequest((req, res) => {
           id: doc.id,
           prayer: data.prayer,
           mintedAt: data.mintedAt?.toDate()?.toISOString(),
+          createdAt: data.createdAt?.toDate()?.toISOString(),
         };
       });
 
-      return res.status(200).json({ candles });
+      // Get total count for counter
+      const totalSnapshot = await db.collection('candles')
+        .where('status', 'in', ['minted', 'payment_completed'])
+        .count()
+        .get();
+      
+      const totalCount = totalSnapshot.data().count;
+
+      return res.status(200).json({ candles, totalCount });
 
     } catch (error) {
       console.error('Error fetching public candles:', error);
