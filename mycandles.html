@@ -351,7 +351,6 @@
                 <h4 class="section-eyebrow">My Candles</h4>
                 <h1>Your Everlit Candles</h1>
                 <p>Return to your candles anytime you need a quiet moment of peace. Click any candle to open it in full-screen mode.</p>
-                <a href="/" class="btn btn-primary btn-large" style="margin-top: 32px; display: inline-block;">Light Another Candle</a>
             </div>
 
             <div id="login-section">
@@ -363,6 +362,7 @@
             </div>
 
             <div id="candles-section" style="display: none;">
+                <button class="btn btn-primary btn-large" onclick="lightAnotherCandle()" style="margin: 0 auto 32px; display: block; text-align: center;">Light Another Candle</button>
                 <div class="candles-grid" id="candles-grid">
                     <!-- Candles loaded here -->
                 </div>
@@ -497,6 +497,11 @@
             });
         });
         
+        // Light Another Candle - Navigate to home page
+        function lightAnotherCandle() {
+            window.location.href = '/';
+        }
+
         // Check if already logged in
         const savedEmail = localStorage.getItem('userEmail');
         if (savedEmail) {
