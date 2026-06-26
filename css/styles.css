@@ -1101,7 +1101,7 @@ a {
   
   /* Full-screen mobile menu overlay */
   .nav {
-    display: flex;
+    display: none;
     position: fixed;
     top: 80px;
     left: 0;
@@ -1114,11 +1114,10 @@ a {
     padding: 40px 24px;
     gap: 8px;
     z-index: 98;
-    visibility: hidden;
   }
   
   .nav.active {
-    visibility: visible;
+    display: flex;
   }
   
   .nav a {
