@@ -430,23 +430,7 @@
     </footer>
 
     <script>
-        // Demo candles for testing
-        const demoCandles = [
-            {
-                id: '1',
-                image: 'assets/EverlitCandle_animated.gif',
-                prayer: 'Praying for my mother\'s healing and strength during her recovery.',
-                date: 'Lit on June 17, 2026',
-                isPublic: false
-            },
-            {
-                id: '2',
-                image: 'assets/EverlitCandle_animated.gif',
-                prayer: 'For peace and guidance in my new journey.',
-                date: 'Lit on June 15, 2026',
-                isPublic: true
-            }
-        ];
+        // No demo candles - only real data from backend
 
         function login() {
             const email = document.getElementById('login-email').value;
@@ -462,43 +446,56 @@
             loadCandles(email);
         }
 
-        function loadCandles(email) {
+        async function loadCandles(email) {
             const grid = document.getElementById('candles-grid');
             
-            // In production, this would fetch from Firebase/API
-            // For demo, show demo candles
-            const candles = JSON.parse(localStorage.getItem('myCandles') || '[]');
-            const allCandles = [...demoCandles, ...candles];
-            
-            if (allCandles.length === 0) {
+            try {
+                const API_BASE = 'https://us-central1-everlitcandle.cloudfunctions.net';
+                const response = await fetch(`${API_BASE}/getUserCandles?email=${encodeURIComponent(email)}`);
+                const data = await response.json();
+                
+                const candles = data.candles || [];
+                
+                if (candles.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state" style="grid-column: 1 / -1;">
+                            <p>You haven't lit any candles yet.</p>
+                            <p><a href="/">Light your first candle</a></p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Store for fullscreen access
+                window.userCandles = candles;
+                
+                grid.innerHTML = candles.map((candle, index) => `
+                    <div class="candle-card" onclick="openFullscreen(${index})">
+                        <span class="candle-prayer-meta">${candle.prayer || 'My prayer, memory, hope, or intention'}</span>
+                        <img src="assets/EverlitCandle_animated.gif" alt="Everlit Candle #${index + 1}" class="candle-img">
+                        <p class="candle-date">Lit: ${new Date(candle.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading candles:', error);
                 grid.innerHTML = `
                     <div class="empty-state" style="grid-column: 1 / -1;">
-                        <p>You haven't lit any candles yet.</p>
-                        <p><a href="/">Light your first candle</a></p>
+                        <p>Unable to load your candles. Please try again.</p>
                     </div>
                 `;
-                return;
             }
-            
-            grid.innerHTML = allCandles.map((candle, index) => `
-                <div class="candle-card" onclick="openFullscreen(${index})">
-                    <span class="candle-prayer-meta">${candle.prayer || 'My prayer, memory, hope, or intention'}</span>
-                    <img src="assets/EverlitCandle_animated.gif" alt="Everlit Candle #${index + 1}" class="candle-img">
-                    <p class="candle-date">${candle.date.replace('Lit on ', 'Lit: ')}</p>
-                </div>
-            `).join('');
         }
 
         function openFullscreen(index) {
-            const candles = JSON.parse(localStorage.getItem('myCandles') || '[]');
-            const allCandles = [...demoCandles, ...candles];
-            const candle = allCandles[index];
+            const candles = window.userCandles || [];
+            const candle = candles[index];
             
             if (!candle) return;
             
             document.getElementById('fullscreen-candle').src = 'assets/EverlitCandle_animated.gif';
             document.getElementById('fullscreen-prayer').textContent = candle.prayer;
-            document.getElementById('fullscreen-date').textContent = candle.date;
+            document.getElementById('fullscreen-date').textContent = 'Lit: ' + new Date(candle.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
             
             const modal = document.getElementById('fullscreen-modal');
             modal.style.display = 'flex';

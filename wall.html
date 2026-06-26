@@ -451,23 +451,38 @@
         const shownCountEl = document.getElementById('shown-count');
         const totalCountEl = document.getElementById('total-count');
         
-        // Load demo candles (Crossmint deprecated)
+        // Load real candles from backend
         async function loadCandles() {
-            // Generate demo candles
-            const demoCandles = Array(24).fill(0).map((_, i) => ({
-                id: `demo-${i}`,
-                metadata: {
-                    image: 'assets/logo.png',
-                    description: 'My prayer, memory, hope, or intention'
-                },
-                onChain: {
-                    timestamp: Date.now() - (i * 86400000)
+            try {
+                const API_BASE = 'https://us-central1-everlitcandle.cloudfunctions.net';
+                const response = await fetch(`${API_BASE}/getPublicCandles?limit=100`);
+                const data = await response.json();
+                
+                const candles = data.candles || [];
+                
+                if (candles.length === 0) {
+                    showEmptyState();
+                    return;
                 }
-            }));
-            
-            allCandles = demoCandles;
-            totalCountEl.textContent = allCandles.length;
-            renderPage();
+                
+                allCandles = candles.map((candle, i) => ({
+                    id: candle.id,
+                    metadata: {
+                        image: 'assets/EverlitCandle_animated.gif',
+                        description: candle.prayer || 'A prayer intention'
+                    },
+                    onChain: {
+                        timestamp: candle.createdAt
+                    }
+                }));
+                
+                totalCountEl.textContent = data.totalCount || allCandles.length;
+                renderPage();
+                
+            } catch (error) {
+                console.error('Error loading candles:', error);
+                showErrorState();
+            }
         }
         
         // Render current page

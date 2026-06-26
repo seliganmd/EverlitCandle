@@ -85,7 +85,7 @@
                 <div class="why-content">
                     <p class="body-xl">In a world where everything fades, your prayer candle burns forever. Reconnect anytime with your prayer, memory, hope, or intention it carries.</p>
                     <div class="counter">
-                        <span class="counter-number" id="candle-counter">83</span>
+                        <span class="counter-number" id="candle-counter">0</span>
                         <span class="counter-label">candles already glow forever</span>
                     </div>
                     <p class="why-tagline meta">Because some lights should never go out.</p>
@@ -421,22 +421,53 @@
     <!-- Scripts -->
     <script src="js/app.js"></script>
     
-    <!-- Load Wall Preview - Demo Candles -->
+    <!-- Load Real Wall Data -->
     <script>
-        // Show demo candles (Crossmint deprecated)
-        function loadWallPreview() {
+        // Fetch real candles from backend
+        async function loadWallPreview() {
             const grid = document.getElementById('wall-preview');
+            const counter = document.getElementById('candle-counter');
             if (!grid) return;
             
-            const demoDates = ['Jun 22, 2026', 'Jun 21, 2026', 'Jun 20, 2026', 'Jun 19, 2026'];
-            
-            grid.innerHTML = demoDates.map((date, i) => `
-                <div class="candle-card">
-                    <span class="candle-prayer-meta">My prayer, memory, hope, or intention</span>
-                    <img src="assets/EverlitCandle_animated.gif" alt="Everlit Candle #${i + 1}" class="candle-img" loading="lazy">
-                    <p class="candle-date">Lit: ${date}</p>
-                </div>
-            `).join('');
+            try {
+                const API_BASE = 'https://us-central1-everlitcandle.cloudfunctions.net';
+                const response = await fetch(`${API_BASE}/getPublicCandles?limit=4`);
+                const data = await response.json();
+                
+                const candles = data.candles || [];
+                
+                // Update counter with real count
+                if (counter && data.totalCount) {
+                    counter.textContent = data.totalCount;
+                } else if (counter) {
+                    counter.textContent = candles.length;
+                }
+                
+                if (candles.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                            <p style="color: var(--color-text-muted);">Be the first to light a candle.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                grid.innerHTML = candles.slice(0, 4).map((candle, i) => `
+                    <div class="candle-card">
+                        <span class="candle-prayer-meta">${candle.prayer || 'A prayer intention'}</span>
+                        <img src="assets/EverlitCandle_animated.gif" alt="Everlit Candle #${i + 1}" class="candle-img" loading="lazy">
+                        <p class="candle-date">Lit: ${new Date(candle.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading wall:', error);
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                        <p style="color: var(--color-text-muted);">Be the first to light a candle.</p>
+                    </div>
+                `;
+            }
         }
         
         // Load preview when DOM is ready
