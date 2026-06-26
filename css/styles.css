@@ -1114,6 +1114,7 @@ a {
     padding: 40px 24px;
     gap: 8px;
     z-index: 98;
+    transition: none;
   }
   
   .nav.active {
@@ -1128,10 +1129,12 @@ a {
     text-align: left;
     border: none;
     letter-spacing: 0;
+    transition: none;
   }
   
   .nav a:hover {
     color: var(--color-primary);
+    transition: none;
   }
   
   /* Modern hamburger - animated */
