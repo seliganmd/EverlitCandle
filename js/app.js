@@ -29,6 +29,16 @@ function initApp() {
     initFormHandling();
     loadCandleWall();
     initCrossmintCheckout();
+    
+    // Check if we should auto-open checkout (from "Light Another Candle" button)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('openCheckout') === 'true') {
+        // Clear the param and open checkout
+        window.history.replaceState({}, document.title, window.location.pathname);
+        setTimeout(() => {
+            document.querySelector('[data-action="purchase"]')?.click();
+        }, 100);
+    }
 }
 
 /**

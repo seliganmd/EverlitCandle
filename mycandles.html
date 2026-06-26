@@ -362,7 +362,7 @@
             </div>
 
             <div id="candles-section" style="display: none;">
-                <button class="btn btn-primary btn-large" onclick="lightAnotherCandle()" style="margin: 0 auto 32px; display: block; text-align: center;">Light Another Candle</button>
+                <button class="btn btn-primary btn-large" onclick="lightAnotherCandle()" style="margin: 0 auto 32px; display: block; text-align: center;" data-action="purchase" data-target="checkout">Light Another Candle</button>
                 <div class="candles-grid" id="candles-grid">
                     <!-- Candles loaded here -->
                 </div>
@@ -497,9 +497,9 @@
             });
         });
         
-        // Light Another Candle - Navigate to home page
+        // Light Another Candle - Navigate to home page with checkout open
         function lightAnotherCandle() {
-            window.location.href = '/';
+            window.location.href = '/?openCheckout=true';
         }
 
         // Check if already logged in
