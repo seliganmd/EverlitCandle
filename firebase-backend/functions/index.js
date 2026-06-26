@@ -1,11 +1,12 @@
 /**
  * Everlit Candle - Firebase Functions
- * Stripe Checkout Integration
+ * Stripe Checkout + Solana NFT Minting Integration
  */
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const Stripe = require('stripe');
+const { mintEverlitCandle } = require('./solana');
 
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -41,11 +42,16 @@ exports.health = functions.https.onRequest((req, res) => {
       return res.status(405).json({ error: 'Method not allowed' });
     }
     
+    const stripeConfigured = !!process.env.STRIPE_SECRET_KEY || !!functions.config().stripe?.secret_key;
+    const solanaConfigured = !!(functions.config().helius?.api_key && functions.config().solana?.treasury_key);
+    
     return res.status(200).json({
       status: 'ok',
       timestamp: new Date().toISOString(),
       message: 'Everlit Candle API is running',
-      stripeConfigured: !!process.env.STRIPE_SECRET_KEY || !!functions.config().stripe?.secret_key
+      stripeConfigured: stripeConfigured,
+      solanaConfigured: solanaConfigured,
+      production: stripeConfigured && solanaConfigured
     });
   });
 });
@@ -165,14 +171,58 @@ exports.stripeWebhook = functions.https.onRequest((req, res) => {
 
           console.log(`Payment completed for candle ${candleId}`);
           
-          // TODO: Trigger NFT minting here
-          // For now, mark as minted (placeholder)
-          await db.collection('candles').doc(candleId).update({
-            status: 'minted',
-            nftMintAddress: `CANDLE_${Date.now()}`,
-            mintedAt: admin.firestore.FieldValue.serverTimestamp(),
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-          });
+          // Fetch candle data for NFT minting
+          const candleDoc = await db.collection('candles').doc(candleId).get();
+          const candleData = candleDoc.data();
+          
+          if (!candleData) {
+            throw new Error('Candle not found');
+          }
+          
+          // Mint the NFT on Solana
+          const heliusApiKey = functions.config().helius?.api_key;
+          const treasuryKey = functions.config().solana?.treasury_key;
+          
+          if (!heliusApiKey || !treasuryKey) {
+            console.error('Missing Solana configuration');
+            await db.collection('candles').doc(candleId).update({
+              status: 'minting_failed',
+              error: 'Missing Solana configuration',
+              updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+            return res.status(200).json({ received: true, error: 'Config missing' });
+          }
+          
+          try {
+            const mintResult = await mintEverlitCandle({
+              heliusApiKey,
+              treasuryPrivateKey: treasuryKey,
+              prayer: candleData.prayer,
+              email: candleData.email,
+              candleId: candleId,
+              isPublic: candleData.isPublic
+            });
+            
+            // Update candle with real NFT data
+            await db.collection('candles').doc(candleId).update({
+              status: 'minted',
+              nftMintAddress: mintResult.mintAddress,
+              nftSignature: mintResult.signature,
+              nftMetadataUri: mintResult.metadataUri,
+              mintedAt: admin.firestore.FieldValue.serverTimestamp(),
+              updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+            
+            console.log(`NFT minted successfully: ${mintResult.mintAddress}`);
+            
+          } catch (mintError) {
+            console.error('NFT minting failed:', mintError);
+            await db.collection('candles').doc(candleId).update({
+              status: 'minting_failed',
+              error: mintError.message,
+              updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+          }
 
         } catch (error) {
           console.error('Error processing payment completion:', error);
