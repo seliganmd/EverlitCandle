@@ -83,11 +83,11 @@
             border-color: rgba(255, 255, 255, 0.1);
         }
         
-        .wall-grid .candle-card img {
-            width: 80px;
-            height: 80px;
-            border-radius: 999px;
-            margin-bottom: 16px;
+        .wall-grid .candle-card .candle-img {
+            width: 160px;
+            height: 160px;
+            border-radius: 12px;
+            margin: 0 auto 16px;
             object-fit: cover;
         }
         
@@ -513,7 +513,7 @@
             card.className = 'candle-card';
             card.innerHTML = `
                 <span class="candle-prayer-meta">${prayer}</span>
-                <img src="assets/logo.png" alt="Everlit Candle #${number}" loading="lazy">
+                <img src="assets/EverlitCandle_animated.gif" alt="Everlit Candle #${number}" class="candle-img" loading="lazy">
                 <p class="candle-date">Lit: ${date}</p>
             `;
             
