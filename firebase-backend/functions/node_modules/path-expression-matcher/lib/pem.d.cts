@@ -251,7 +251,7 @@ declare interface PushOptions {
  * ro.reset();            // ✗ TypeError: Cannot call 'reset' on a read-only Matcher
  * ```
  */
-declare interface ReadOnlyMatcher {
+declare class MatcherView {
   /**
    * Default path separator (read-only)
    */
@@ -395,6 +395,12 @@ declare interface ReadOnlyMatcher {
    */
   restore(snapshot: MatcherSnapshot): never;
 }
+
+/**
+ * Backward‑compatible alias for {@link MatcherView}.
+ * @deprecated Use MatcherView directly.
+ */
+declare type ReadOnlyMatcher = MatcherView;
 
 /**
  * Matcher - Tracks current path in XML/JSON tree and matches against Expressions
@@ -697,10 +703,14 @@ declare class ExpressionSet {
   findMatch(matcher: Matcher | ReadOnlyMatcher): Expression;
 }
 
+// ─── Namespace & Default Export ──────────────────────────────────────────
+
 declare namespace pathExpressionMatcher {
   export {
     Expression,
     Matcher,
+    MatcherView,
+    ReadOnlyMatcher,
     ExpressionSet,
     ExpressionOptions,
     MatcherOptions,

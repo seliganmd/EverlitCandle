@@ -1,6 +1,6 @@
 /**
  * Everlit Candle - Solana NFT Minting
- * Using raw Solana web3.js with Token Metadata Program
+ * Using raw Solana web3.js
  */
 
 const {
@@ -9,61 +9,113 @@ const {
   PublicKey,
   Transaction,
   sendAndConfirmTransaction,
-  clusterApiUrl
+  SystemProgram,
+  clusterApiUrl,
+  SYSVAR_RENT_PUBKEY
 } = require('@solana/web3.js');
 const {
-  createMint,
-  mintTo,
-  createAssociatedTokenAccount,
-  getAssociatedTokenAddress,
   TOKEN_PROGRAM_ID,
-  ASSOCIATED_TOKEN_PROGRAM_ID
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  createInitializeMintInstruction,
+  createMintToInstruction,
+  getAssociatedTokenAddress,
+  createAssociatedTokenAccountInstruction
 } = require('@solana/spl-token');
-const {
-  createCreateMetadataAccountV3Instruction,
-  PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID
-} = require('@metaplex-foundation/mpl-token-metadata');
 const bs58 = require('bs58');
 
+// Token Metadata Program ID
+const TOKEN_METADATA_PROGRAM_ID = new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s');
+
 /**
- * Create metadata instruction
+ * Get metadata PDA
  */
-function createMetadataInstruction(metadata, mint, mintAuthority, payer) {
-  const [metadataPDA] = PublicKey.findProgramAddressSync(
+function getMetadataPDA(mint) {
+  return PublicKey.findProgramAddressSync(
     [
       Buffer.from('metadata'),
       TOKEN_METADATA_PROGRAM_ID.toBuffer(),
       mint.toBuffer()
     ],
     TOKEN_METADATA_PROGRAM_ID
-  );
+  )[0];
+}
 
-  const data = {
-    name: metadata.name,
-    symbol: metadata.symbol,
-    uri: metadata.uri,
-    sellerFeeBasisPoints: metadata.sellerFeeBasisPoints || 0,
-    creators: metadata.creators || null,
-    collection: null,
-    uses: null
+/**
+ * Create metadata instruction
+ */
+function createMetadataInstruction(accounts, data) {
+  // Manually build the instruction
+  const keys = [
+    { pubkey: accounts.metadata, isSigner: false, isWritable: true },
+    { pubkey: accounts.mint, isSigner: false, isWritable: false },
+    { pubkey: accounts.mintAuthority, isSigner: true, isWritable: false },
+    { pubkey: accounts.payer, isSigner: true, isWritable: true },
+    { pubkey: accounts.updateAuthority, isSigner: false, isWritable: false },
+    { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+    { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false }
+  ];
+
+  // Build instruction data manually
+  // Discriminator for CreateMetadataAccountV3 = 33
+  const discriminator = Buffer.from([33]);
+  
+  // Serialize args
+  const nameBuf = Buffer.from(data.name);
+  const symbolBuf = Buffer.from(data.symbol);
+  const uriBuf = Buffer.from(data.uri);
+  
+  const argsBuf = Buffer.alloc(4 + nameBuf.length + 4 + symbolBuf.length + 4 + uriBuf.length + 2 + 1 + 1 + 1 + 1);
+  let offset = 0;
+  
+  // name
+  argsBuf.writeUInt32LE(nameBuf.length, offset);
+  offset += 4;
+  nameBuf.copy(argsBuf, offset);
+  offset += nameBuf.length;
+  
+  // symbol
+  argsBuf.writeUInt32LE(symbolBuf.length, offset);
+  offset += 4;
+  symbolBuf.copy(argsBuf, offset);
+  offset += symbolBuf.length;
+  
+  // uri
+  argsBuf.writeUInt32LE(uriBuf.length, offset);
+  offset += 4;
+  uriBuf.copy(argsBuf, offset);
+  offset += uriBuf.length;
+  
+  // sellerFeeBasisPoints (u16)
+  argsBuf.writeUInt16LE(data.sellerFeeBasisPoints, offset);
+  offset += 2;
+  
+  // creators (Option) - None for simplicity
+  argsBuf.writeUInt8(0, offset);
+  offset += 1;
+  
+  // collection (Option) - None
+  argsBuf.writeUInt8(0, offset);
+  offset += 1;
+  
+  // uses (Option) - None
+  argsBuf.writeUInt8(0, offset);
+  offset += 1;
+  
+  // isMutable (bool)
+  argsBuf.writeUInt8(data.isMutable ? 1 : 0, offset);
+  offset += 1;
+  
+  // collectionDetails (Option) - None
+  argsBuf.writeUInt8(0, offset);
+  offset += 1;
+  
+  const dataBuffer = Buffer.concat([discriminator, argsBuf.slice(0, offset)]);
+  
+  return {
+    programId: TOKEN_METADATA_PROGRAM_ID,
+    keys: keys,
+    data: dataBuffer
   };
-
-  return createCreateMetadataAccountV3Instruction(
-    {
-      metadata: metadataPDA,
-      mint: mint,
-      mintAuthority: mintAuthority,
-      payer: payer,
-      updateAuthority: mintAuthority
-    },
-    {
-      createMetadataAccountArgsV3: {
-        data: data,
-        isMutable: true,
-        collectionDetails: null
-      }
-    }
-  );
 }
 
 /**
@@ -82,7 +134,7 @@ async function mintEverlitCandle({
 
     // Setup connection
     const rpcUrl = heliusApiKey
-      ? `https://mainnet.helius-rpc.com/?api-key=***
+      ? `https://mainnet.helius-rpc.com/?api-key=***`
       : clusterApiUrl('mainnet-beta');
 
     const connection = new Connection(rpcUrl, 'confirmed');
@@ -96,25 +148,22 @@ async function mintEverlitCandle({
     const mintKeypair = Keypair.generate();
     console.log('Mint:', mintKeypair.publicKey.toBase58());
 
+    // Get associated token address
+    const associatedTokenAddress = await getAssociatedTokenAddress(
+      mintKeypair.publicKey,
+      treasuryKeypair.publicKey
+    );
+
+    // Get metadata PDA
+    const metadataPDA = getMetadataPDA(mintKeypair.publicKey);
+
     // Build transaction
     const transaction = new Transaction();
 
-    // Create mint account
-    const createMintAccountInstruction =
-      require('@solana/spl-token').createInitializeMint2Instruction(
-        mintKeypair.publicKey,
-        0, // 0 decimals for NFT
-        treasuryKeypair.publicKey,
-        treasuryKeypair.publicKey,
-        TOKEN_PROGRAM_ID
-      );
-
-    // Get rent-exempt balance for mint
+    // 1. Create mint account
     const mintRent = await connection.getMinimumBalanceForRentExemption(82);
-
-    // Add create account instruction
     transaction.add(
-      require('@solana/web3.js').SystemProgram.createAccount({
+      SystemProgram.createAccount({
         fromPubkey: treasuryKeypair.publicKey,
         newAccountPubkey: mintKeypair.publicKey,
         space: 82,
@@ -123,61 +172,57 @@ async function mintEverlitCandle({
       })
     );
 
-    // Add initialize mint instruction
-    transaction.add(createMintAccountInstruction);
-
-    // Create associated token account for treasury
-    const associatedTokenAddress = await getAssociatedTokenAddress(
-      mintKeypair.publicKey,
-      treasuryKeypair.publicKey
-    );
-
+    // 2. Initialize mint
     transaction.add(
-      require('@solana/spl-token').createAssociatedTokenAccountInstruction(
-        treasuryKeypair.publicKey,
-        associatedTokenAddress,
-        treasuryKeypair.publicKey,
+      createInitializeMintInstruction(
         mintKeypair.publicKey,
-        TOKEN_PROGRAM_ID,
-        ASSOCIATED_TOKEN_PROGRAM_ID
+        0,
+        treasuryKeypair.publicKey,
+        treasuryKeypair.publicKey
       )
     );
 
-    // Mint 1 token to treasury
+    // 3. Create associated token account
     transaction.add(
-      require('@solana/spl-token').createMintToInstruction(
-        mintKeypair.publicKey,
+      createAssociatedTokenAccountInstruction(
+        treasuryKeypair.publicKey,
         associatedTokenAddress,
         treasuryKeypair.publicKey,
-        1, // Mint 1 NFT
-        [],
-        TOKEN_PROGRAM_ID
+        mintKeypair.publicKey
       )
     );
 
-    // Create metadata
+    // 4. Mint 1 token
+    transaction.add(
+      createMintToInstruction(
+        mintKeypair.publicKey,
+        associatedTokenAddress,
+        treasuryKeypair.publicKey,
+        1
+      )
+    );
+
+    // 5. Create metadata
     const metadataUri = `https://us-central1-everlitcandle.cloudfunctions.net/nftMetadata?candleId=${candleId}`;
-
-    const metadataInstruction = createMetadataInstruction(
+    
+    const metadataIx = createMetadataInstruction(
+      {
+        metadata: metadataPDA,
+        mint: mintKeypair.publicKey,
+        mintAuthority: treasuryKeypair.publicKey,
+        payer: treasuryKeypair.publicKey,
+        updateAuthority: treasuryKeypair.publicKey
+      },
       {
         name: `Everlit #${candleId.slice(-4)}`,
         symbol: 'EVERLIT',
         uri: metadataUri,
         sellerFeeBasisPoints: 500,
-        creators: [
-          {
-            address: treasuryKeypair.publicKey,
-            share: 100,
-            verified: true
-          }
-        ]
-      },
-      mintKeypair.publicKey,
-      treasuryKeypair.publicKey,
-      treasuryKeypair.publicKey
+        isMutable: true
+      }
     );
 
-    transaction.add(metadataInstruction);
+    transaction.add(metadataIx);
 
     // Send transaction
     console.log('Sending transaction...');
