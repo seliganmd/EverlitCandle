@@ -120,7 +120,7 @@
                 
                 <div class="wall-content" style="margin-top: var(--space-6);">
                     <div class="wall-actions" style="margin-top: var(--space-xl);">
-                        <a href="/wall.html" class="btn btn-primary">Visit Candle Wall</a>
+                        <a href="/wall.html" class="btn btn-primary btn-large">Visit Candle Wall</a>
                     </div>
                 </div>
             </div>
@@ -179,7 +179,7 @@
                     </div>
                 </div>
                 <div class="ownership-cta">
-                    <a href="/guide.html" class="btn btn-secondary" data-action="navigate" data-target="wallet-guide">My Wallet Guide</a>
+                    <a href="/guide.html" class="btn btn-secondary btn-large" data-action="navigate" data-target="wallet-guide">My Wallet Guide</a>
                 </div>
             </div>
         </section>
@@ -282,9 +282,7 @@
                             <span class="price-note">One-time purchase</span>
                         </div>
                     </div>
-                    <div id="crossmint-button-container">
-                        <!-- Crossmint button will be injected here -->
-                    </div>
+                    <button type="submit" class="btn btn-primary btn-large" id="checkout-submit" style="width: 100%;">Light My Candle</button>
                 </form>
             </div>
         </div>
@@ -444,11 +442,7 @@
                 }
                 
                 if (candles.length === 0) {
-                    grid.innerHTML = `
-                        <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
-                            <p style="color: var(--color-text-muted);">Be the first to light a candle.</p>
-                        </div>
-                    `;
+                    grid.innerHTML = '';
                     return;
                 }
                 
@@ -462,11 +456,7 @@
                 
             } catch (error) {
                 console.error('Error loading wall:', error);
-                grid.innerHTML = `
-                    <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
-                        <p style="color: var(--color-text-muted);">Be the first to light a candle.</p>
-                    </div>
-                `;
+                grid.innerHTML = '';
             }
         }
         

@@ -417,12 +417,47 @@
             
             <!-- View More -->
             <div class="wall-actions">
-                <button class="btn btn-secondary" id="view-more-btn" style="display: none;">
+                <button class="btn btn-secondary btn-large" id="view-more-btn" style="display: none;">
                     View More
                 </button>
             </div>
         </div>
     </main>
+
+    <!-- Checkout Modal -->
+    <div class="modal" id="checkout-modal" data-modal="checkout" style="display: none; position: fixed; inset: 0; z-index: 200; align-items: center; justify-content: center; padding: 16px;">
+        <div class="modal-overlay" onclick="closeCheckoutModal()" style="position: absolute; inset: 0; background: rgba(0,0,0,0.8);"></div>
+        <div class="modal-content" style="position: relative; background: var(--color-bg-surface, #1e1c19); border-radius: 24px; padding: 24px; max-width: 480px; width: 100%; max-height: 85vh; overflow-y: auto; box-sizing: border-box;">
+            <button class="modal-close" onclick="closeCheckoutModal()" style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--color-text-primary, #fff); font-size: 24px; cursor: pointer;">
+                <i class="ph ph-x"></i>
+            </button>
+            <h3 class="modal-title" style="font-family: var(--font-secondary, 'Playfair Display'); font-size: 28px; margin-bottom: 24px; text-align: center;">Light Your Everlit Candle</h3>
+            <form class="checkout-form" id="checkout-form" onsubmit="handleCheckout(event)">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="email" style="display: block; margin-bottom: 8px; font-size: 14px; color: var(--color-text-secondary, #b3b1ad);">Your Email</label>
+                    <input type="email" id="email" name="email" placeholder="you@example.com" required style="width: 100%; padding: 12px 16px; background: var(--color-bg-primary, #141311); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; font-size: 16px;">
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="prayer" style="display: block; margin-bottom: 8px; font-size: 14px; color: var(--color-text-secondary, #b3b1ad);">Your Prayer Intention</label>
+                    <textarea id="prayer" name="prayer" placeholder="What are you praying for?" maxlength="500" rows="4" style="width: 100%; padding: 12px 16px; background: var(--color-bg-primary, #141311); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; font-size: 16px; resize: vertical;"></textarea>
+                    <span class="char-count" style="font-size: 12px; color: var(--color-text-tertiary, #8f8c85); float: right; margin-top: 4px;"><span id="char-count">0</span>/500</span>
+                </div>
+                <div class="form-group form-checkbox" style="margin-bottom: 24px; clear: both;">
+                    <label class="checkbox-label" style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-size: 14px;">
+                        <input type="checkbox" id="is-public" name="public" value="1" checked style="margin-top: 2px;">
+                        <span>Display my candle on the Candle Wall (anonymous)</span>
+                    </label>
+                </div>
+                <div class="checkout-summary" style="background: rgba(228, 151, 41, 0.1); border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: center;">
+                    <div class="checkout-price">
+                        <span class="price-amount" style="font-size: 32px; font-weight: 600; color: var(--color-primary, #e49729); display: block;">$7.00</span>
+                        <span class="price-note" style="font-size: 14px; color: var(--color-text-tertiary, #8f8c85);">One-time purchase</span>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-large" id="checkout-submit" style="width: 100%;">Light My Candle</button>
+            </form>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="footer">
@@ -551,12 +586,75 @@
             grid.innerHTML = `
                 <div class="wall-empty">
                     <i class="ph ph-candle"></i>
-                    <p>No public candles yet. Be the first to light one.</p>
-                    <a href="/" class="btn btn-primary">Light My Candle</a>
+                    <p>No candles yet.</p>
+                    <button class="btn btn-primary btn-large" onclick="openCheckoutModal()">Light My Candle</button>
                 </div>
             `;
             viewMoreBtn.style.display = 'none';
         }
+
+        // Checkout modal functions
+        function openCheckoutModal() {
+            const modal = document.getElementById('checkout-modal');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCheckoutModal() {
+            const modal = document.getElementById('checkout-modal');
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        async function handleCheckout(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const prayer = document.getElementById('prayer').value;
+            const isPublic = document.getElementById('is-public').checked;
+            const submitBtn = document.getElementById('checkout-submit');
+            
+            if (!email || !prayer) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating checkout...';
+            
+            try {
+                const API_BASE = 'https://us-central1-everlitcandle.cloudfunctions.net';
+                const response = await fetch(`${API_BASE}/createCheckoutSession`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, prayer, isPublic })
+                });
+                
+                const data = await response.json();
+                
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    throw new Error(data.error || 'Failed to create checkout');
+                }
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert(error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Light My Candle';
+            }
+        }
+
+        // Character count
+        document.addEventListener('DOMContentLoaded', () => {
+            const prayerInput = document.getElementById('prayer');
+            const charCount = document.getElementById('char-count');
+            if (prayerInput && charCount) {
+                prayerInput.addEventListener('input', () => {
+                    charCount.textContent = prayerInput.value.length;
+                });
+            }
+        });
         
         // Show error state
         function showErrorState() {

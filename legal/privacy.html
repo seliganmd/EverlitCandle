@@ -14,6 +14,74 @@
         .last-updated { color: var(--text-muted); margin-bottom: 48px; }
         .legal-content h2 { margin-top: 48px; margin-bottom: 16px; font-size: 1.5rem; }
         .legal-content p { margin-bottom: 16px; }
+
+        /* Mobile menu styles */
+        @media (max-width: 767px) {
+            .nav {
+                display: none;
+                position: fixed;
+                top: 80px;
+                left: 0;
+                right: 0;
+                height: calc(100vh - 80px);
+                background: #141311;
+                flex-direction: column;
+                align-items: flex-start;
+                justify-content: flex-start;
+                padding: 40px 24px;
+                gap: 8px;
+                z-index: 98;
+            }
+            .nav.active {
+                display: flex;
+            }
+            .nav a {
+                font-size: 16px;
+                font-weight: 400;
+                padding: 12px 0;
+                color: #ffffff;
+                text-align: left;
+                border: none;
+                letter-spacing: 0;
+                transition: none;
+            }
+            .hamburger {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                gap: 6px;
+                width: 40px;
+                height: 40px;
+                background: transparent;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 8px;
+                cursor: pointer;
+                padding: 8px;
+                z-index: 101;
+            }
+            .hamburger span {
+                display: block;
+                width: 22px;
+                height: 2px;
+                background: #fff;
+                border-radius: 2px;
+                margin: 0 auto;
+            }
+        }
+        @media (min-width: 768px) {
+            .hamburger {
+                display: none;
+            }
+            .nav {
+                display: flex !important;
+                position: static;
+                height: auto;
+                background: transparent;
+                flex-direction: row;
+                padding: 0;
+                gap: 32px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -23,6 +91,19 @@
                 <img src="../assets/logo.png" alt="Everlit Candle" width="40" height="40">
                 <span>Everlit Candle</span>
             </a>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <nav class="nav" id="nav">
+                <a href="/">Home</a>
+                <a href="/mycandles.html">My Candles</a>
+                <a href="/wall.html">Candle Wall</a>
+                <a href="/guide.html">Wallet Guide</a>
+                <a href="/#faq">FAQ</a>
+                <a href="/#footer">Legal</a>
+            </nav>
         </div>
     </header>
 
@@ -119,5 +200,25 @@
             </div>
         </div>
     </footer>
+    <script>
+        // Hamburger Menu
+        (function() {
+            const hamburger = document.getElementById('hamburger');
+            const nav = document.getElementById('nav');
+            
+            hamburger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.toggle('active');
+                nav.classList.toggle('active');
+            });
+            
+            nav.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    hamburger.classList.remove('active');
+                    nav.classList.remove('active');
+                });
+            });
+        })();
+    </script>
 </body>
 </html>

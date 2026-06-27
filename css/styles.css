@@ -682,8 +682,8 @@ a {
 }
 
 .ownership-item p {
-  font-size: 15px;
-  color: var(--color-text-primary);
+  font-size: 14px;
+  color: var(--color-text-muted);
   line-height: 1.6;
   margin: 0;
 }
