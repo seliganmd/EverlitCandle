@@ -317,6 +317,7 @@ exports.getUserCandles = functions.https.onRequest((req, res) => {
       console.log(`Found ${candlesSnapshot.size} candles`);
 
       // Sort by createdAt descending if we couldn't use orderBy in query
+      // Sort by createdAt descending if we couldn't use orderBy in query
       const candles = candlesSnapshot.docs
         .map(doc => ({
           id: doc.id,
@@ -326,6 +327,35 @@ exports.getUserCandles = functions.https.onRequest((req, res) => {
           mintedAt: doc.data().mintedAt?.toDate()?.toISOString(),
         }))
         .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+      // Update any candles that were minted on-chain but not marked in database
+      // This fixes candles where transaction succeeded but Firestore update failed
+      for (const candle of candles) {
+        if (candle.status === 'minting_failed' && candle.nftMintAddress) {
+          // Candle has a mint address but was marked as failed - check if it's actually minted
+          try {
+            const { Connection, clusterApiUrl, PublicKey } = require('@solana/web3.js');
+            const connection = new Connection(clusterApiUrl('mainnet-beta'), 'confirmed');
+            const mintPubkey = new PublicKey(candle.nftMintAddress);
+            
+            // Check if account exists
+            const accountInfo = await connection.getAccountInfo(mintPubkey);
+            if (accountInfo) {
+              console.log(`Candle ${candle.id} has valid mint on-chain, updating status`);
+              // Update in background (don't await)
+              db.collection('candles').doc(candle.id).update({
+                status: 'minted',
+                updatedAt: admin.firestore.FieldValue.serverTimestamp()
+              }).catch(e => console.error('Failed to update candle status:', e));
+              
+              // Update in memory for this response
+              candle.status = 'minted';
+            }
+          } catch (checkError) {
+            console.log(`Could not verify candle ${candle.id} on-chain:`, checkError.message);
+          }
+        }
+      }
 
       return res.status(200).json({ candles });
 
@@ -367,7 +397,7 @@ exports.getPublicCandles = functions.https.onRequest((req, res) => {
           .get();
       }
 
-      // Filter by status in memory to avoid complex index requirements
+      // Filter by status in memory - only show successfully minted candles on the wall
       const candles = candlesSnapshot.docs
         .map(doc => {
           const data = doc.data();
@@ -375,28 +405,25 @@ exports.getPublicCandles = functions.https.onRequest((req, res) => {
             id: doc.id,
             prayer: data.prayer,
             status: data.status,
+            nftMintAddress: data.nftMintAddress,
             mintedAt: data.mintedAt?.toDate()?.toISOString(),
             createdAt: data.createdAt?.toDate()?.toISOString(),
           };
         })
-        .filter(c => c.status === 'minted' || c.status === 'payment_completed' || c.status === 'minting_failed')
+        .filter(c => c.status === 'minted' && c.nftMintAddress)
         .slice(0, limit);
 
-      // Get total count for counter - count all minted or payment_completed
+      // Get total count for counter - only count successfully minted candles
       let totalCount = 0;
       try {
         const totalSnapshot = await db.collection('candles')
-          .where('status', 'in', ['minted', 'payment_completed', 'minting_failed'])
+          .where('status', '==', 'minted')
           .count()
           .get();
         totalCount = totalSnapshot.data().count;
       } catch (countError) {
-        // Fallback: count minted only if composite index fails
-        const mintedSnapshot = await db.collection('candles')
-          .where('status', '==', 'minted')
-          .count()
-          .get();
-        totalCount = mintedSnapshot.data().count;
+        console.log('Count query failed:', countError.message);
+        totalCount = candles.length;
       }
 
       return res.status(200).json({ candles, totalCount });

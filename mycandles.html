@@ -470,22 +470,28 @@
                 // Store for fullscreen access
                 window.userCandles = candles;
                 
-                grid.innerHTML = candles.map((candle, index) => {
-                    const statusBadge = candle.status === 'minted' ? '' : 
-                        `<span class="candle-status" style="position: absolute; top: 8px; right: 8px; background: rgba(228, 151, 41, 0.9); color: #000; font-size: 10px; padding: 4px 8px; border-radius: 12px; font-weight: 600;">${candle.status === 'pending_payment' ? 'Pending' : (candle.status === 'minting_failed' ? 'Mint Failed' : 'Minting...')}</span>`;
-                    
-                    const retryButton = candle.status === 'minting_failed' ? 
-                        `<button class="btn btn-primary btn-small" onclick="event.stopPropagation(); retryMint('${candle.id}')" style="margin-top: 12px; padding: 8px 16px; font-size: 12px;">Retry Mint</button>` : '';
-                    
-                    return `
+                // Filter to only show candles that are minted or payment completed
+                const validCandles = candles.filter(c => c.status === 'minted' || c.status === 'payment_completed');
+                
+                if (validCandles.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state" style="text-align: center; padding: 40px; grid-column: 1 / -1;">
+                            <i class="ph ph-candle" style="font-size: 48px; color: var(--color-primary);"></i>
+                            <p style="margin-top: 16px; color: var(--color-text-muted);">No minted candles found for this email.</p>
+                            <p style="font-size: 14px; color: var(--color-text-secondary);">If you purchased a candle, it may still be processing.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                grid.innerHTML = validCandles.map((candle, index) => `
                     <div class="candle-card" onclick="openFullscreen(${index})" style="position: relative;">
-                        ${statusBadge}
                         <span class="candle-prayer-meta">${candle.prayer || 'My prayer, memory, hope, or intention'}</span>
                         <img src="assets/EverlitCandle_animated.gif" alt="Everlit Candle #${index + 1}" class="candle-img">
                         <p class="candle-date">Lit: ${new Date(candle.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                        ${retryButton}
+                        ${candle.nftMintAddress ? `<a href="https://explorer.solana.com/address/${candle.nftMintAddress}" target="_blank" class="nft-link" style="font-size: 11px; color: var(--color-primary); text-decoration: none; display: block; margin-top: 8px;" onclick="event.stopPropagation();"><i class="ph ph-link"></i> View on Solana</a>` : ''}
                     </div>
-                `}).join('');
+                `).join('');
                 
             } catch (error) {
                 console.error('Error loading candles:', error);
