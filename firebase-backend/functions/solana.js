@@ -59,12 +59,18 @@ function createMetadataInstruction(accounts, data) {
   // Discriminator for CreateMetadataAccountV3 = 33
   const discriminator = Buffer.from([33]);
   
-  // Serialize args
+  // Serialize args with generous buffer
   const nameBuf = Buffer.from(data.name);
   const symbolBuf = Buffer.from(data.symbol);
   const uriBuf = Buffer.from(data.uri);
   
-  const argsBuf = Buffer.alloc(4 + nameBuf.length + 4 + symbolBuf.length + 4 + uriBuf.length + 2 + 1 + 1 + 1 + 1);
+  // Calculate needed size: 3x u32 lengths (4 bytes each) + strings + u16 (2 bytes) + 5x bool/option (1 byte each)
+  // Total: 12 + name + symbol + uri + 2 + 5 = 19 + name + symbol + uri
+  const neededSize = 4 + nameBuf.length + 4 + symbolBuf.length + 4 + uriBuf.length + 2 + 1 + 1 + 1 + 1 + 1;
+  console.log('Buffer calc - name:', nameBuf.length, 'symbol:', symbolBuf.length, 'uri:', uriBuf.length, 'needed:', neededSize);
+  
+  // Allocate with extra padding for safety
+  const argsBuf = Buffer.alloc(Math.max(neededSize + 50, 250));
   let offset = 0;
   
   // name
@@ -109,7 +115,15 @@ function createMetadataInstruction(accounts, data) {
   argsBuf.writeUInt8(0, offset);
   offset += 1;
   
+  console.log('Final offset:', offset, 'buffer size:', argsBuf.length);
+  
+  if (offset > argsBuf.length) {
+    throw new Error(`Buffer overflow: offset ${offset} exceeds buffer size ${argsBuf.length}`);
+  }
+  
   const dataBuffer = Buffer.concat([discriminator, argsBuf.slice(0, offset)]);
+  
+  console.log('Instruction data size:', dataBuffer.length);
   
   return {
     programId: TOKEN_METADATA_PROGRAM_ID,
@@ -218,8 +232,10 @@ async function mintEverlitCandle({
       )
     );
 
-    // 5. Create metadata
-    const metadataUri = `https://us-central1-everlitcandle.cloudfunctions.net/nftMetadata?candleId=${candleId}`;
+    // 5. Create metadata with SHORTER URI to fit in transaction
+    // Use a shorter URL format to save space in the transaction
+    const shortUri = `https://us-central1-everlitcandle.cloudfunctions.net/nftMetadata?c=${candleId}`;
+    console.log('Metadata URI length:', shortUri.length);
     
     const metadataIx = createMetadataInstruction(
       {
@@ -231,8 +247,8 @@ async function mintEverlitCandle({
       },
       {
         name: `Everlit #${candleId.slice(-4)}`,
-        symbol: 'EVERLIT',
-        uri: metadataUri,
+        symbol: 'EVRL',
+        uri: shortUri,
         sellerFeeBasisPoints: 500,
         isMutable: true
       }

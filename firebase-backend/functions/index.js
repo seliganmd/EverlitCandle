@@ -419,7 +419,8 @@ exports.nftMetadata = functions.https.onRequest((req, res) => {
     }
 
     try {
-      const { candleId } = req.query;
+      // Support both ?candleId=xxx and ?c=xxx (shorter for transaction size)
+      const candleId = req.query.candleId || req.query.c;
       
       if (!candleId) {
         return res.status(400).json({ error: 'candleId is required' });
