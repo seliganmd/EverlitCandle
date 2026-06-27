@@ -271,7 +271,7 @@ async function mintEverlitCandle({
       success: true,
       mintAddress: mintKeypair.publicKey.toBase58(),
       signature: signature,
-      metadataUri: metadataUri
+      metadataUri: shortUri
     };
 
   } catch (error) {
