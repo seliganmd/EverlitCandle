@@ -104,8 +104,8 @@ exports.createCheckoutSession = functions.https.onRequest((req, res) => {
           quantity: 1,
         }],
         mode: 'payment',
-        success_url: `https://everlitcandle.com/mycandles.html?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `https://everlitcandle.com/mycandles.html?canceled=true`,
+        success_url: `https://seliganmd.github.io/EverlitCandle/mycandles.html?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `https://seliganmd.github.io/EverlitCandle/mycandles.html?canceled=true`,
         metadata: {
           candleId: candleRef.id,
           email: email,
