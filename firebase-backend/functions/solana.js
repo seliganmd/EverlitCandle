@@ -3,11 +3,12 @@
  * Metaplex UMI integration for minting prayer candles
  */
 
-const { createUmi, signerIdentity } = require('@metaplex-foundation/umi-bundle-defaults');
+const { createUmi } = require('@metaplex-foundation/umi-bundle-defaults');
 const { 
   generateSigner, 
   percentAmount,
-  publicKey
+  publicKey,
+  signerIdentity
 } = require('@metaplex-foundation/umi');
 const { 
   createNft,
