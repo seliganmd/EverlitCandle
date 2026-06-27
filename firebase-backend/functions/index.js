@@ -398,3 +398,78 @@ exports.getPublicCandles = functions.https.onRequest((req, res) => {
     }
   });
 });
+
+/**
+ * Retry Minting for Failed Candles
+ * POST /retryMint
+ * Body: { candleId: string }
+ */
+exports.retryMint = functions.https.onRequest((req, res) => {
+  return corsHandler(req, res, async () => {
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    try {
+      const { candleId } = req.body;
+      
+      if (!candleId) {
+        return res.status(400).json({ error: 'candleId is required' });
+      }
+
+      // Fetch candle data
+      const candleDoc = await db.collection('candles').doc(candleId).get();
+      const candleData = candleDoc.data();
+      
+      if (!candleData) {
+        return res.status(404).json({ error: 'Candle not found' });
+      }
+
+      if (candleData.status === 'minted') {
+        return res.status(200).json({ success: true, message: 'Already minted', mintAddress: candleData.nftMintAddress });
+      }
+
+      console.log(`Retrying mint for candle ${candleId}...`);
+
+      // Mint the NFT on Solana
+      const heliusApiKey = functions.config().helius?.api_key;
+      const treasuryKey = functions.config().solana?.treasury_key;
+      
+      if (!heliusApiKey || !treasuryKey) {
+        return res.status(500).json({ error: 'Missing Solana configuration' });
+      }
+      
+      const mintResult = await mintEverlitCandle({
+        heliusApiKey,
+        treasuryPrivateKey: treasuryKey,
+        prayer: candleData.prayer,
+        email: candleData.email,
+        candleId: candleId,
+        isPublic: candleData.isPublic
+      });
+      
+      // Update candle with NFT data
+      await db.collection('candles').doc(candleId).update({
+        status: 'minted',
+        nftMintAddress: mintResult.mintAddress,
+        nftSignature: mintResult.signature,
+        nftMetadataUri: mintResult.metadataUri,
+        mintedAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        error: null // Clear any previous error
+      });
+      
+      console.log(`NFT minted successfully on retry: ${mintResult.mintAddress}`);
+      
+      return res.status(200).json({
+        success: true,
+        mintAddress: mintResult.mintAddress,
+        signature: mintResult.signature
+      });
+      
+    } catch (error) {
+      console.error('Retry mint failed:', error);
+      return res.status(500).json({ error: error.message });
+    }
+  });
+});
