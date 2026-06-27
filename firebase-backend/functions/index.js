@@ -495,10 +495,17 @@ exports.retryMint = functions.https.onRequest((req, res) => {
       console.log(`Retrying mint for candle ${candleId}...`);
 
       // Mint the NFT on Solana
-      const heliusApiKey = functions.config().helius?.api_key;
-      const treasuryKey = functions.config().solana?.treasury_key;
+      const heliusApiKey = functions.config().helius?.api_key || process.env.HELIUS_API_KEY;
+      const treasuryKey = functions.config().solana?.treasury_key || process.env.SOLANA_TREASURY_KEY;
+      
+      console.log('Retry mint config:', {
+        heliusApiKeyPresent: !!heliusApiKey,
+        heliusApiKeyLength: heliusApiKey?.length,
+        treasuryKeyPresent: !!treasuryKey
+      });
       
       if (!heliusApiKey || !treasuryKey) {
+        console.error('Missing config. Run: firebase functions:config:set helius.api_key="..." solana.treasury_key="..."');
         return res.status(500).json({ error: 'Missing Solana configuration' });
       }
       

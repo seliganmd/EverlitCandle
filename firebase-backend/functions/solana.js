@@ -134,14 +134,26 @@ async function mintEverlitCandle({
     console.log('Helius API key present:', heliusApiKey ? 'yes' : 'no');
     console.log('Helius API key length:', heliusApiKey ? heliusApiKey.length : 0);
 
-    // Setup connection
-    const rpcUrl = heliusApiKey
-      ? `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`
-      : clusterApiUrl('mainnet-beta');
-
-    console.log('Using RPC:', heliusApiKey ? 'Helius' : 'Default');
+    // Setup connection - try Helius first, fall back to default if invalid
+    let connection;
+    let usingHelius = false;
     
-    const connection = new Connection(rpcUrl, 'confirmed');
+    if (heliusApiKey && heliusApiKey.length > 30) {
+      try {
+        const rpcUrl = `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`;
+        connection = new Connection(rpcUrl, 'confirmed');
+        // Test the connection
+        await connection.getSlot();
+        usingHelius = true;
+        console.log('Using Helius RPC');
+      } catch (connError) {
+        console.log('Helius connection failed, falling back to default:', connError.message);
+        connection = new Connection(clusterApiUrl('mainnet-beta'), 'confirmed');
+      }
+    } else {
+      console.log('No valid Helius key, using default RPC');
+      connection = new Connection(clusterApiUrl('mainnet-beta'), 'confirmed');
+    }
 
     // Load treasury keypair
     const secretKey = bs58.decode(treasuryPrivateKey);
