@@ -201,11 +201,19 @@ exports.stripeWebhook = functions.https.onRequest((req, res) => {
           }
           
           // Mint the NFT on Solana
-          const heliusApiKey = functions.config().helius?.api_key;
-          const treasuryKey = functions.config().solana?.treasury_key;
+          const heliusApiKey = functions.config().helius?.api_key || process.env.HELIUS_API_KEY;
+          const treasuryKey = functions.config().solana?.treasury_key || process.env.SOLANA_TREASURY_KEY;
+          
+          console.log('Config check:', {
+            heliusApiKeyPresent: !!heliusApiKey,
+            heliusApiKeyLength: heliusApiKey?.length,
+            treasuryKeyPresent: !!treasuryKey,
+            treasuryKeyLength: treasuryKey?.length
+          });
           
           if (!heliusApiKey || !treasuryKey) {
-            console.error('Missing Solana configuration');
+            console.error('Missing Solana configuration. Run:');
+            console.error('firebase functions:config:set helius.api_key="YOUR_HELIUS_KEY" solana.treasury_key="YOUR_PRIVATE_KEY"');
             await db.collection('candles').doc(candleId).update({
               status: 'minting_failed',
               error: 'Missing Solana configuration',

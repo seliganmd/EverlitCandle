@@ -131,12 +131,16 @@ async function mintEverlitCandle({
 }) {
   try {
     console.log(`Minting Everlit #${candleId.slice(-4)}...`);
+    console.log('Helius API key present:', heliusApiKey ? 'yes' : 'no');
+    console.log('Helius API key length:', heliusApiKey ? heliusApiKey.length : 0);
 
     // Setup connection
     const rpcUrl = heliusApiKey
-      ? `https://mainnet.helius-rpc.com/?api-key=***`
+      ? `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`
       : clusterApiUrl('mainnet-beta');
 
+    console.log('Using RPC:', heliusApiKey ? 'Helius' : 'Default');
+    
     const connection = new Connection(rpcUrl, 'confirmed');
 
     // Load treasury keypair
