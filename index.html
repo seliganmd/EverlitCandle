@@ -260,7 +260,7 @@
                     <i class="ph ph-x"></i>
                 </button>
                 <h3 class="modal-title">Light Your Everlit Candle</h3>
-                <form class="checkout-form" id="checkout-form" onsubmit="handleCheckout(event)">
+                <form class="checkout-form" id="checkout-form">
                     <div class="form-group">
                         <label for="email">Your Email</label>
                         <input type="email" id="email" name="email" placeholder="you@example.com" required>
@@ -282,7 +282,7 @@
                             <span class="price-note">One-time purchase</span>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-large" id="checkout-submit" style="width: 100%;">Light My Candle</button>
+                    <button type="button" class="btn btn-primary btn-large" id="checkout-submit" style="width: 100%;" onclick="handleCheckout()">Light My Candle</button>
                 </form>
             </div>
         </div>
@@ -468,9 +468,7 @@
         }
 
         // Handle checkout form submission
-        async function handleCheckout(e) {
-            e.preventDefault();
-            
+        async function handleCheckout() {
             const email = document.getElementById('email').value;
             const prayer = document.getElementById('prayer').value;
             const isPublic = document.querySelector('input[name="public"]').checked;
