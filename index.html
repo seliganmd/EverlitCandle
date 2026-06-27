@@ -260,7 +260,7 @@
                     <i class="ph ph-x"></i>
                 </button>
                 <h3 class="modal-title">Light Your Everlit Candle</h3>
-                <form class="checkout-form" id="checkout-form">
+                <form class="checkout-form" id="checkout-form" onsubmit="handleCheckout(event)">
                     <div class="form-group">
                         <label for="email">Your Email</label>
                         <input type="email" id="email" name="email" placeholder="you@example.com" required>
@@ -465,6 +465,53 @@
             document.addEventListener('DOMContentLoaded', loadWallPreview);
         } else {
             loadWallPreview();
+        }
+
+        // Handle checkout form submission
+        async function handleCheckout(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const prayer = document.getElementById('prayer').value;
+            const isPublic = document.querySelector('input[name="public"]').checked;
+            const submitBtn = document.getElementById('checkout-submit');
+            
+            if (!email || !prayer) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating checkout...';
+            
+            try {
+                const API_BASE = 'https://us-central1-everlitcandle.cloudfunctions.net';
+                const response = await fetch(`${API_BASE}/createCheckoutSession`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email,
+                        prayer,
+                        isPublic
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.url) {
+                    // Redirect to Stripe Checkout
+                    window.location.href = data.url;
+                } else {
+                    throw new Error(data.error || 'Failed to create checkout');
+                }
+                
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert(error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Light My Candle';
+            }
         }
     </script>
 </body>
