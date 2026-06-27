@@ -74,10 +74,11 @@ exports.createCheckoutSession = functions.https.onRequest((req, res) => {
       }
 
       // Create a pending candle document
+      const normalizedEmail = email.toLowerCase().trim();
       const candleRef = db.collection('candles').doc();
       const candleData = {
         id: candleRef.id,
-        email: email,
+        email: normalizedEmail,
         prayer: prayer,
         isPublic: isPublic,
         status: 'pending_payment',
@@ -147,9 +148,13 @@ exports.stripeWebhook = functions.https.onRequest((req, res) => {
 
     let event;
 
+    console.log('Webhook received. Signature:', sig ? 'present' : 'missing');
+    console.log('Endpoint secret:', endpointSecret ? 'configured' : 'missing');
+
     try {
       // Verify webhook signature
       event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret);
+      console.log('Webhook verified. Event type:', event.type);
     } catch (err) {
       console.error('Webhook signature verification failed:', err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);
@@ -252,7 +257,7 @@ exports.getUserCandles = functions.https.onRequest((req, res) => {
       }
 
       const candlesSnapshot = await db.collection('candles')
-        .where('email', '==', email)
+        .where('email', '==', email.toLowerCase().trim())
         .orderBy('createdAt', 'desc')
         .get();
 
@@ -288,8 +293,8 @@ exports.getPublicCandles = functions.https.onRequest((req, res) => {
 
       const candlesSnapshot = await db.collection('candles')
         .where('isPublic', '==', true)
-        .where('status', '==', 'minted')
-        .orderBy('mintedAt', 'desc')
+        .where('status', 'in', ['minted', 'payment_completed'])
+        .orderBy('createdAt', 'desc')
         .limit(limit)
         .get();
 
