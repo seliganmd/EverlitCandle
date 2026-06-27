@@ -190,8 +190,15 @@ exports.stripeWebhook = functions.https.onRequest((req, res) => {
           console.log('Candle data retrieved:', {
             email: candleData.email,
             prayerLength: candleData.prayer?.length,
-            isPublic: candleData.isPublic
+            isPublic: candleData.isPublic,
+            currentStatus: candleData.status
           });
+          
+          // Skip if already minted or minting
+          if (candleData.status === 'minted') {
+            console.log(`Candle ${candleId} already minted, skipping`);
+            return res.status(200).json({ received: true, alreadyMinted: true });
+          }
           
           // Mint the NFT on Solana
           const heliusApiKey = functions.config().helius?.api_key;
@@ -363,16 +370,25 @@ exports.getPublicCandles = functions.https.onRequest((req, res) => {
             createdAt: data.createdAt?.toDate()?.toISOString(),
           };
         })
-        .filter(c => c.status === 'minted' || c.status === 'payment_completed')
+        .filter(c => c.status === 'minted' || c.status === 'payment_completed' || c.status === 'minting_failed')
         .slice(0, limit);
 
-      // Get total count for counter - use simple query
-      const totalSnapshot = await db.collection('candles')
-        .where('status', '==', 'minted')
-        .count()
-        .get();
-      
-      const totalCount = totalSnapshot.data().count;
+      // Get total count for counter - count all minted or payment_completed
+      let totalCount = 0;
+      try {
+        const totalSnapshot = await db.collection('candles')
+          .where('status', 'in', ['minted', 'payment_completed', 'minting_failed'])
+          .count()
+          .get();
+        totalCount = totalSnapshot.data().count;
+      } catch (countError) {
+        // Fallback: count minted only if composite index fails
+        const mintedSnapshot = await db.collection('candles')
+          .where('status', '==', 'minted')
+          .count()
+          .get();
+        totalCount = mintedSnapshot.data().count;
+      }
 
       return res.status(200).json({ candles, totalCount });
 

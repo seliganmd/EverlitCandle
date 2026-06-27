@@ -3,18 +3,24 @@
  * Metaplex UMI integration for minting prayer candles
  */
 
-const { createUmi } = require('@metaplex-foundation/umi-bundle-defaults');
-const { fromWeb3JsKeypair } = require('@metaplex-foundation/umi-web3js-adapters');
+const { createUmi, signerIdentity } = require('@metaplex-foundation/umi-bundle-defaults');
+const { createSignerFromKeypair } = require('@metaplex-foundation/umi');
 const { 
   createNft,
-  mplTokenMetadata,
-  fetchDigitalAsset
+  mplTokenMetadata
 } = require('@metaplex-foundation/mpl-token-metadata');
 const { 
   generateSigner,
-  percentAmount,
-  sol
+  percentAmount
 } = require('@metaplex-foundation/umi');
+const bs58 = require('bs58');
+
+// Collection configuration
+const COLLECTION_CONFIG = {
+  name: 'Everlit Candle',
+  symbol: 'EVERLIT',
+  sellerFeeBasisPoints: 500 // 5% royalty
+};
 
 // Helper functions for Option types
 function some(value) {
@@ -24,18 +30,6 @@ function some(value) {
 function none() {
   return { __option: 'None' };
 }
-const { Keypair, Connection, clusterApiUrl } = require('@solana/web3.js');
-const bs58 = require('bs58');
-
-// Collection configuration
-const COLLECTION_CONFIG = {
-  name: 'Everlit Candle',
-  symbol: 'EVERLIT',
-  sellerFeeBasisPoints: 500, // 5% royalty
-  creators: [
-    { address: null, share: 100, verified: true } // Will be set to treasury
-  ]
-};
 
 /**
  * Initialize UMI with Helius RPC
@@ -44,25 +38,29 @@ function initializeUmi(heliusApiKey, treasuryPrivateKey) {
   // Use Helius RPC for reliability
   const rpcUrl = heliusApiKey 
     ? `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`
-    : clusterApiUrl('mainnet-beta');
+    : 'https://api.mainnet-beta.solana.com';
+  
+  console.log('Initializing UMI with RPC:', rpcUrl.substring(0, 50) + '...');
   
   const umi = createUmi(rpcUrl)
     .use(mplTokenMetadata());
   
-  // Load treasury keypair
-  const treasuryKeypair = Keypair.fromSecretKey(bs58.decode(treasuryPrivateKey));
-  const treasurySigner = fromWeb3JsKeypair(treasuryKeypair);
+  // Decode the private key
+  const secretKey = bs58.decode(treasuryPrivateKey);
   
-  // Set treasury as the signer
-  umi.use({
-    install(umi) {
-      umi.identity = treasurySigner;
-      umi.payer = treasurySigner;
-    }
-  });
+  // Create a UMI keypair from the secret key
+  const keypair = {
+    publicKey: umi.eddsa.getPublicKey(secretKey.slice(0, 32)), // First 32 bytes are seed
+    secretKey: secretKey
+  };
   
-  // Update creators with treasury address
-  COLLECTION_CONFIG.creators[0].address = treasurySigner.publicKey;
+  // Create a proper signer from the keypair
+  const treasurySigner = createSignerFromKeypair(umi, keypair);
+  
+  // Set the signer as identity and payer
+  umi.use(signerIdentity(treasurySigner));
+  
+  console.log('Treasury signer public key:', treasurySigner.publicKey.toString());
   
   return { umi, treasurySigner };
 }
@@ -100,7 +98,6 @@ async function uploadMetadata(heliusApiKey, metadata) {
     }
     
     // Fallback: Return a placeholder URI for now
-    // In production, implement proper Arweave/Irys upload
     console.warn('Helius upload failed, using placeholder');
     return createPlaceholderUri(metadata);
     
@@ -144,6 +141,7 @@ async function mintEverlitCandle({
 }) {
   try {
     console.log(`Minting Everlit Candle NFT for ${email}...`);
+    console.log('Candle ID:', candleId);
     
     // Initialize UMI
     const { umi, treasurySigner } = initializeUmi(heliusApiKey, treasuryPrivateKey);
@@ -172,32 +170,35 @@ async function mintEverlitCandle({
     console.log('Mint address:', mintSigner.publicKey.toString());
     
     // Create the NFT
-    const { signature } = await createNft(umi, {
+    console.log('Creating NFT transaction...');
+    const result = await createNft(umi, {
       mint: mintSigner,
       name: metadata.name,
       symbol: metadata.symbol,
       uri: metadataUri,
       sellerFeeBasisPoints: percentAmount(5),
-      creators: null, // Single creator (the treasury) - no creators array needed
       collection: none(),
       uses: none(),
       isMutable: true,
-    }).sendAndConfirm(umi);
+    }).sendAndConfirm(umi, {
+      confirm: { commitment: 'confirmed' }
+    });
     
     console.log('NFT minted successfully!');
-    console.log('Signature:', signature);
+    console.log('Signature:', result.signature);
     console.log('Mint Address:', mintSigner.publicKey.toString());
     
     return {
       success: true,
       mintAddress: mintSigner.publicKey.toString(),
-      signature: signature,
+      signature: result.signature,
       metadataUri: metadataUri,
       metadata: metadata
     };
     
   } catch (error) {
     console.error('NFT minting failed:', error);
+    console.error('Error stack:', error.stack);
     throw error;
   }
 }
