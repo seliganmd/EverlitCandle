@@ -4,15 +4,17 @@
  */
 
 const { createUmi, signerIdentity } = require('@metaplex-foundation/umi-bundle-defaults');
-const { createSignerFromKeypair } = require('@metaplex-foundation/umi');
+const { 
+  generateSigner, 
+  percentAmount,
+  publicKey,
+  keypairIdentity
+} = require('@metaplex-foundation/umi');
 const { 
   createNft,
   mplTokenMetadata
 } = require('@metaplex-foundation/mpl-token-metadata');
-const { 
-  generateSigner,
-  percentAmount
-} = require('@metaplex-foundation/umi');
+const { Keypair } = require('@solana/web3.js');
 const bs58 = require('bs58');
 
 // Collection configuration
@@ -23,10 +25,6 @@ const COLLECTION_CONFIG = {
 };
 
 // Helper functions for Option types
-function some(value) {
-  return { __option: 'Some', value };
-}
-
 function none() {
   return { __option: 'None' };
 }
@@ -40,29 +38,30 @@ function initializeUmi(heliusApiKey, treasuryPrivateKey) {
     ? `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`
     : 'https://api.mainnet-beta.solana.com';
   
-  console.log('Initializing UMI with RPC:', rpcUrl.substring(0, 50) + '...');
+  console.log('Initializing UMI with RPC...');
   
   const umi = createUmi(rpcUrl)
     .use(mplTokenMetadata());
   
-  // Decode the private key
-  const secretKey = bs58.decode(treasuryPrivateKey);
+  // Decode the base58 private key to get the Keypair
+  const secretKeyUint8 = bs58.decode(treasuryPrivateKey);
+  const keypair = Keypair.fromSecretKey(secretKeyUint8);
   
-  // Create a UMI keypair from the secret key
-  const keypair = {
-    publicKey: umi.eddsa.getPublicKey(secretKey.slice(0, 32)), // First 32 bytes are seed
-    secretKey: secretKey
+  // Convert to UMI-compatible format
+  const umiKeypair = {
+    publicKey: publicKey(keypair.publicKey.toBase58()),
+    secretKey: secretKeyUint8
   };
   
-  // Create a proper signer from the keypair
-  const treasurySigner = createSignerFromKeypair(umi, keypair);
+  // Create identity signer from keypair
+  const treasurySigner = keypairIdentity(umiKeypair);
   
   // Set the signer as identity and payer
-  umi.use(signerIdentity(treasurySigner));
+  umi.use(treasurySigner);
   
-  console.log('Treasury signer public key:', treasurySigner.publicKey.toString());
+  console.log('Treasury signer public key:', keypair.publicKey.toBase58());
   
-  return { umi, treasurySigner };
+  return { umi, treasurySigner, keypair };
 }
 
 /**
@@ -97,7 +96,7 @@ async function uploadMetadata(heliusApiKey, metadata) {
       return data.result.metadataUri;
     }
     
-    // Fallback: Return a placeholder URI for now
+    // Fallback: Return a placeholder URI
     console.warn('Helius upload failed, using placeholder');
     return createPlaceholderUri(metadata);
     
@@ -109,10 +108,8 @@ async function uploadMetadata(heliusApiKey, metadata) {
 
 /**
  * Create a placeholder URI for metadata
- * In production, replace with real Arweave/Irys upload
  */
 function createPlaceholderUri(metadata) {
-  // Create a data URI for testing
   const metadataJson = JSON.stringify({
     name: metadata.name,
     symbol: metadata.symbol,
@@ -144,7 +141,7 @@ async function mintEverlitCandle({
     console.log('Candle ID:', candleId);
     
     // Initialize UMI
-    const { umi, treasurySigner } = initializeUmi(heliusApiKey, treasuryPrivateKey);
+    const { umi, keypair } = initializeUmi(heliusApiKey, treasuryPrivateKey);
     
     // Prepare metadata
     const metadata = {
@@ -180,9 +177,7 @@ async function mintEverlitCandle({
       collection: none(),
       uses: none(),
       isMutable: true,
-    }).sendAndConfirm(umi, {
-      confirm: { commitment: 'confirmed' }
-    });
+    }).sendAndConfirm(umi);
     
     console.log('NFT minted successfully!');
     console.log('Signature:', result.signature);
