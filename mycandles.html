@@ -451,7 +451,8 @@
             
             try {
                 const API_BASE = 'https://us-central1-everlitcandle.cloudfunctions.net';
-                const response = await fetch(`${API_BASE}/getUserCandles?email=${encodeURIComponent(email)}`);
+                const normalizedEmail = email.toLowerCase().trim();
+                const response = await fetch(`${API_BASE}/getUserCandles?email=${encodeURIComponent(normalizedEmail)}`);
                 const data = await response.json();
                 
                 const candles = data.candles || [];

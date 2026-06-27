@@ -13,9 +13,17 @@ const {
 const { 
   generateSigner,
   percentAmount,
-  sol,
-  some
+  sol
 } = require('@metaplex-foundation/umi');
+
+// Helper functions for Option types
+function some(value) {
+  return { __option: 'Some', value };
+}
+
+function none() {
+  return { __option: 'None' };
+}
 const { Keypair, Connection, clusterApiUrl } = require('@solana/web3.js');
 const bs58 = require('bs58');
 
@@ -192,11 +200,6 @@ async function mintEverlitCandle({
     console.error('NFT minting failed:', error);
     throw error;
   }
-}
-
-// Helper for Option<none>
-function none() {
-  return { __option: 'None' };
 }
 
 module.exports = {

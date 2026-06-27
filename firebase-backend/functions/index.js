@@ -75,6 +75,8 @@ exports.createCheckoutSession = functions.https.onRequest((req, res) => {
 
       // Create a pending candle document
       const normalizedEmail = email.toLowerCase().trim();
+      console.log('Creating candle for email:', normalizedEmail);
+      
       const candleRef = db.collection('candles').doc();
       const candleData = {
         id: candleRef.id,
@@ -181,8 +183,15 @@ exports.stripeWebhook = functions.https.onRequest((req, res) => {
           const candleData = candleDoc.data();
           
           if (!candleData) {
+            console.error(`Candle ${candleId} not found in database`);
             throw new Error('Candle not found');
           }
+          
+          console.log('Candle data retrieved:', {
+            email: candleData.email,
+            prayerLength: candleData.prayer?.length,
+            isPublic: candleData.isPublic
+          });
           
           // Mint the NFT on Solana
           const heliusApiKey = functions.config().helius?.api_key;
@@ -256,18 +265,51 @@ exports.getUserCandles = functions.https.onRequest((req, res) => {
         return res.status(400).json({ error: 'Email is required' });
       }
 
-      const candlesSnapshot = await db.collection('candles')
-        .where('email', '==', email.toLowerCase().trim())
-        .orderBy('createdAt', 'desc')
-        .get();
+      const normalizedEmail = email.toLowerCase().trim();
+      console.log('Fetching candles for email:', normalizedEmail);
+      
+      // Try exact match first
+      let candlesSnapshot;
+      try {
+        candlesSnapshot = await db.collection('candles')
+          .where('email', '==', normalizedEmail)
+          .orderBy('createdAt', 'desc')
+          .get();
+      } catch (indexError) {
+        console.log('Index error on sorted query, trying unsorted:', indexError.message);
+        candlesSnapshot = await db.collection('candles')
+          .where('email', '==', normalizedEmail)
+          .get();
+      }
+      
+      // If no results, try without normalization (for legacy data)
+      if (candlesSnapshot.empty) {
+        console.log('No candles found with normalized email, trying raw email:', email);
+        try {
+          candlesSnapshot = await db.collection('candles')
+            .where('email', '==', email)
+            .orderBy('createdAt', 'desc')
+            .get();
+        } catch (indexError) {
+          console.log('Index error on legacy query, trying unsorted:', indexError.message);
+          candlesSnapshot = await db.collection('candles')
+            .where('email', '==', email)
+            .get();
+        }
+      }
+      
+      console.log(`Found ${candlesSnapshot.size} candles`);
 
-      const candles = candlesSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate()?.toISOString(),
-        updatedAt: doc.data().updatedAt?.toDate()?.toISOString(),
-        mintedAt: doc.data().mintedAt?.toDate()?.toISOString(),
-      }));
+      // Sort by createdAt descending if we couldn't use orderBy in query
+      const candles = candlesSnapshot.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: doc.data().createdAt?.toDate()?.toISOString(),
+          updatedAt: doc.data().updatedAt?.toDate()?.toISOString(),
+          mintedAt: doc.data().mintedAt?.toDate()?.toISOString(),
+        }))
+        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
       return res.status(200).json({ candles });
 
@@ -291,26 +333,42 @@ exports.getPublicCandles = functions.https.onRequest((req, res) => {
     try {
       const limit = parseInt(req.query.limit) || 20;
 
-      const candlesSnapshot = await db.collection('candles')
-        .where('isPublic', '==', true)
-        .where('status', 'in', ['minted', 'payment_completed'])
-        .orderBy('createdAt', 'desc')
-        .limit(limit)
-        .get();
+      // Simplified query to avoid index requirements - just get all public candles with valid statuses
+      // then sort in memory
+      let candlesSnapshot;
+      try {
+        candlesSnapshot = await db.collection('candles')
+          .where('isPublic', '==', true)
+          .orderBy('createdAt', 'desc')
+          .limit(limit * 2) // Get more to account for filtering
+          .get();
+      } catch (indexError) {
+        console.log('Index error, falling back to simple query:', indexError.message);
+        // Fallback: get all and filter in memory
+        candlesSnapshot = await db.collection('candles')
+          .where('isPublic', '==', true)
+          .limit(100)
+          .get();
+      }
 
-      const candles = candlesSnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          prayer: data.prayer,
-          mintedAt: data.mintedAt?.toDate()?.toISOString(),
-          createdAt: data.createdAt?.toDate()?.toISOString(),
-        };
-      });
+      // Filter by status in memory to avoid complex index requirements
+      const candles = candlesSnapshot.docs
+        .map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            prayer: data.prayer,
+            status: data.status,
+            mintedAt: data.mintedAt?.toDate()?.toISOString(),
+            createdAt: data.createdAt?.toDate()?.toISOString(),
+          };
+        })
+        .filter(c => c.status === 'minted' || c.status === 'payment_completed')
+        .slice(0, limit);
 
-      // Get total count for counter
+      // Get total count for counter - use simple query
       const totalSnapshot = await db.collection('candles')
-        .where('status', 'in', ['minted', 'payment_completed'])
+        .where('status', '==', 'minted')
         .count()
         .get();
       
