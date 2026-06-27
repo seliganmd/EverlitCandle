@@ -7,6 +7,7 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const Stripe = require('stripe');
 const { mintEverlitCandle } = require('./solana');
+const { Connection, clusterApiUrl } = require('@solana/web3.js');
 
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -540,6 +541,104 @@ exports.retryMint = functions.https.onRequest((req, res) => {
       
     } catch (error) {
       console.error('Retry mint failed:', error);
+      return res.status(500).json({ error: error.message });
+    }
+  });
+});
+
+/**
+ * Check Candle Status on Solana
+ * GET /checkCandleStatus?candleId=xxx
+ * Verifies if a candle was minted on-chain and updates Firestore
+ */
+exports.checkCandleStatus = functions.https.onRequest((req, res) => {
+  return corsHandler(req, res, async () => {
+    if (req.method !== 'GET') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    try {
+      const { candleId } = req.query;
+      
+      if (!candleId) {
+        return res.status(400).json({ error: 'candleId is required' });
+      }
+
+      // Fetch candle from Firestore
+      const candleDoc = await db.collection('candles').doc(candleId).get();
+      
+      if (!candleDoc.exists) {
+        return res.status(404).json({ error: 'Candle not found' });
+      }
+      
+      const candleData = candleDoc.data();
+      
+      // If already minted, just return success
+      if (candleData.status === 'minted' && candleData.nftMintAddress) {
+        return res.status(200).json({
+          status: 'minted',
+          mintAddress: candleData.nftMintAddress,
+          signature: candleData.nftSignature,
+          message: 'Already minted'
+        });
+      }
+      
+      // If there's a signature, check if transaction succeeded
+      if (candleData.nftSignature && candleData.nftSignature !== 'pending') {
+        const { Connection, clusterApiUrl } = require('@solana/web3.js');
+        const connection = new Connection(clusterApiUrl('mainnet-beta'), 'confirmed');
+        
+        try {
+          // Check transaction status
+          const status = await connection.getSignatureStatus(candleData.nftSignature);
+          
+          if (status.value?.err) {
+            // Transaction failed
+            return res.status(200).json({
+              status: 'failed',
+              signature: candleData.nftSignature,
+              error: status.value.err,
+              message: 'Transaction failed on-chain'
+            });
+          } else if (status.value?.confirmationStatus === 'confirmed' || status.value?.confirmationStatus === 'finalized') {
+            // Transaction succeeded but Firestore wasn't updated
+            // Update Firestore now
+            await db.collection('candles').doc(candleId).update({
+              status: 'minted',
+              updatedAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+            
+            return res.status(200).json({
+              status: 'minted',
+              mintAddress: candleData.nftMintAddress,
+              signature: candleData.nftSignature,
+              message: 'Transaction confirmed, status updated'
+            });
+          } else {
+            return res.status(200).json({
+              status: 'pending',
+              signature: candleData.nftSignature,
+              confirmationStatus: status.value?.confirmationStatus,
+              message: 'Transaction pending confirmation'
+            });
+          }
+        } catch (checkError) {
+          console.error('Error checking transaction:', checkError);
+          return res.status(200).json({
+            status: candleData.status,
+            signature: candleData.nftSignature,
+            message: 'Could not verify transaction status'
+          });
+        }
+      }
+      
+      return res.status(200).json({
+        status: candleData.status,
+        message: 'No transaction signature found'
+      });
+      
+    } catch (error) {
+      console.error('Check candle status failed:', error);
       return res.status(500).json({ error: error.message });
     }
   });
