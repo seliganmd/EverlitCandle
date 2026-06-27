@@ -7,9 +7,9 @@ const { createUmi } = require('@metaplex-foundation/umi-bundle-defaults');
 const { 
   generateSigner, 
   percentAmount,
-  publicKey,
-  signerIdentity
+  publicKey
 } = require('@metaplex-foundation/umi');
+const { fromWeb3JsKeypair } = require('@metaplex-foundation/umi-web3js-adapters');
 const { 
   createNft,
   mplTokenMetadata
@@ -38,18 +38,16 @@ function initializeUmi(heliusApiKey, treasuryPrivateKey) {
   const secretKeyUint8 = bs58.decode(treasuryPrivateKey);
   const keypair = Keypair.fromSecretKey(secretKeyUint8);
   
-  // Create UMI keypair
-  const umiKeypair = {
-    publicKey: publicKey(keypair.publicKey.toBase58()),
-    secretKey: secretKeyUint8
-  };
+  // Convert to UMI signer using web3js adapter (this has signTransaction)
+  const treasurySigner = fromWeb3JsKeypair(keypair);
   
-  // Set identity
-  umi.use(signerIdentity(umiKeypair));
+  // Set identity and payer
+  umi.identity = treasurySigner;
+  umi.payer = treasurySigner;
   
   console.log('Treasury:', keypair.publicKey.toBase58());
   
-  return { umi, keypair };
+  return { umi, treasurySigner, keypair };
 }
 
 /**
@@ -68,10 +66,9 @@ async function mintEverlitCandle({
     console.log(`Minting Everlit #${candleId.slice(-4)}...`);
     
     // Initialize UMI
-    const { umi } = initializeUmi(heliusApiKey, treasuryPrivateKey);
+    const { umi, treasurySigner } = initializeUmi(heliusApiKey, treasuryPrivateKey);
     
-    // Use external metadata URL (served by our own API)
-    // This keeps the transaction size small
+    // Use external metadata URL
     const metadataUri = `https://us-central1-everlitcandle.cloudfunctions.net/nftMetadata?candleId=${candleId}`;
     console.log('Metadata URL:', metadataUri);
     
@@ -79,7 +76,7 @@ async function mintEverlitCandle({
     const mintSigner = generateSigner(umi);
     console.log('Mint:', mintSigner.publicKey.toString().slice(0, 16) + '...');
     
-    // Create NFT
+    // Create NFT - treasury is already set as identity/payer
     const result = await createNft(umi, {
       mint: mintSigner,
       name: `Everlit #${candleId.slice(-4)}`,
@@ -88,7 +85,7 @@ async function mintEverlitCandle({
       sellerFeeBasisPoints: percentAmount(5),
       collection: none(),
       uses: none(),
-      isMutable: true, // Allow updates to metadata URL if needed
+      isMutable: true,
     }).sendAndConfirm(umi);
     
     console.log('Success! Tx:', result.signature.slice(0, 20) + '...');
@@ -102,6 +99,7 @@ async function mintEverlitCandle({
     
   } catch (error) {
     console.error('Mint failed:', error.message);
+    console.error('Stack:', error.stack);
     throw error;
   }
 }
