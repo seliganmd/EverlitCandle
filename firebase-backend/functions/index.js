@@ -400,6 +400,61 @@ exports.getPublicCandles = functions.https.onRequest((req, res) => {
 });
 
 /**
+ * Get NFT Metadata
+ * GET /nftMetadata?candleId=xxx
+ * Returns JSON metadata for a specific candle NFT
+ */
+exports.nftMetadata = functions.https.onRequest((req, res) => {
+  return corsHandler(req, res, async () => {
+    if (req.method !== 'GET') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    try {
+      const { candleId } = req.query;
+      
+      if (!candleId) {
+        return res.status(400).json({ error: 'candleId is required' });
+      }
+
+      // Fetch candle data
+      const candleDoc = await db.collection('candles').doc(candleId).get();
+      
+      if (!candleDoc.exists) {
+        return res.status(404).json({ error: 'Candle not found' });
+      }
+      
+      const candleData = candleDoc.data();
+
+      // Return metadata in Metaplex format
+      const metadata = {
+        name: `Everlit Candle #${candleId.slice(-6)}`,
+        symbol: 'EVERLIT',
+        description: `A prayer candle lit on the Solana blockchain.\n\nPrayer: "${candleData.prayer}"\n\nLit by: ${candleData.email}\nDate: ${candleData.createdAt?.toDate?.() ? candleData.createdAt.toDate().toISOString() : new Date().toISOString()}`,
+        image: 'https://seliganmd.github.io/EverlitCandle/assets/EverlitCandle_animated.gif',
+        attributes: [
+          { trait_type: 'Prayer', value: candleData.prayer?.slice(0, 100) + (candleData.prayer?.length > 100 ? '...' : '') },
+          { trait_type: 'Lit By', value: candleData.email },
+          { trait_type: 'Lit Date', value: candleData.createdAt?.toDate?.() ? candleData.createdAt.toDate().toISOString() : new Date().toISOString() },
+          { trait_type: 'Visibility', value: candleData.isPublic ? 'Public' : 'Private' },
+          { trait_type: 'Network', value: 'Solana' }
+        ],
+        properties: {
+          category: 'image',
+          files: [{ uri: 'https://seliganmd.github.io/EverlitCandle/assets/EverlitCandle_animated.gif', type: 'image/gif' }]
+        }
+      };
+
+      return res.status(200).json(metadata);
+      
+    } catch (error) {
+      console.error('Metadata fetch failed:', error);
+      return res.status(500).json({ error: error.message });
+    }
+  });
+});
+
+/**
  * Retry Minting for Failed Candles
  * POST /retryMint
  * Body: { candleId: string }
