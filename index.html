@@ -298,6 +298,16 @@
                         We've sent a verification link to <strong id="verify-email-display"></strong>.<br>
                         Click the link in the email to complete your purchase.
                     </p>
+                    
+                    <!-- Testing fallback - shows when email service not configured -->
+                    <div id="verify-link-container" style="display: none; background: rgba(228, 151, 41, 0.1); border-radius: 12px; padding: 16px; margin-bottom: 24px; text-align: left;">
+                        <p style="font-size: 12px; color: var(--color-primary); margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <i class="ph ph-warning" style="margin-right: 4px;"></i>
+                            Testing Mode - Email service not configured
+                        </p>
+                        <a id="verify-link" href="#" target="_blank" style="color: var(--color-text-secondary); font-size: 13px; word-break: break-all; display: block; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 6px;"></a>
+                    </div>
+                    
                     <div style="background: rgba(228, 151, 41, 0.1); border-radius: 12px; padding: 16px; margin-bottom: 24px;">
                         <p style="font-size: 14px; color: var(--color-text-secondary); margin: 0;">
                             <i class="ph ph-info" style="margin-right: 8px;"></i>
@@ -526,6 +536,17 @@
                     document.getElementById('checkout-step-1').style.display = 'none';
                     document.getElementById('checkout-step-2').style.display = 'block';
                     document.getElementById('verify-email-display').textContent = email;
+                    
+                    // If email not actually sent (SES not configured), show the link for testing
+                    if (!data.emailSent && data.verificationUrl) {
+                        const linkContainer = document.getElementById('verify-link-container');
+                        const linkElement = document.getElementById('verify-link');
+                        if (linkContainer && linkElement) {
+                            linkContainer.style.display = 'block';
+                            linkElement.href = data.verificationUrl;
+                            linkElement.textContent = data.verificationUrl;
+                        }
+                    }
                 } else {
                     throw new Error(data.error || 'Failed to send verification email');
                 }

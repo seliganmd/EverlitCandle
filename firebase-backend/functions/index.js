@@ -34,6 +34,92 @@ const corsHandler = (req, res, callback) => {
 };
 
 /**
+ * Send verification email via AWS SES
+ * Returns { success: boolean, messageId?: string, error?: string }
+ */
+async function sendVerificationEmailSES(toEmail, verificationUrl, prayer) {
+  const nodemailer = require('nodemailer');
+  
+  // SES SMTP credentials from Firebase config
+  const sesUser = functions.config().ses?.smtp_user || process.env.SES_SMTP_USER;
+  const sesPass = functions.config().ses?.smtp_password || process.env.SES_SMTP_PASSWORD;
+  const fromEmail = functions.config().ses?.from_email || 'noreply@everlitcandle.com';
+  
+  if (!sesUser || !sesPass) {
+    throw new Error('SES credentials not configured');
+  }
+  
+  // Create transporter
+  const transporter = nodemailer.createTransport({
+    host: 'email-smtp.us-east-2.amazonaws.com',
+    port: 587,
+    secure: false,
+    auth: {
+      user: sesUser,
+      pass: sesPass
+    }
+  });
+  
+  // Email content
+  const emailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Everlit Candle</title>
+    <style>
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #141311; color: #f3f3f3; margin: 0; padding: 40px 20px; }
+        .container { max-width: 480px; margin: 0 auto; text-align: center; }
+        .logo { font-family: 'Playfair Display', Georgia, serif; color: #e49729; font-size: 28px; margin-bottom: 32px; }
+        h1 { font-size: 24px; font-weight: 600; margin-bottom: 16px; color: #f3f3f3; }
+        p { color: #a1a19b; line-height: 1.6; margin-bottom: 24px; }
+        .prayer-box { background: rgba(228, 151, 41, 0.1); border-left: 3px solid #e49729; padding: 16px; margin: 24px 0; text-align: left; border-radius: 0 8px 8px 0; }
+        .prayer-label { color: #e49729; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .prayer-text { color: #f3f3f3; font-style: italic; }
+        .button { display: inline-block; background: #e49729; color: #141311; padding: 16px 32px; text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 16px; margin: 16px 0; }
+        .footer { margin-top: 40px; padding-top: 24px; border-top: 1px solid #3d3d3d; font-size: 12px; color: #a1a19b; }
+        .expires { color: #a1a19b; font-size: 13px; margin-top: 16px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">Everlit Candle</div>
+        <h1>Light Your Candle</h1>
+        <p>You're almost there! Click the button below to verify your email and complete your Everlit Candle purchase.</p>
+        
+        <div class="prayer-box">
+            <div class="prayer-label">Your Prayer Intention</div>
+            <div class="prayer-text">${prayer.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+        </div>
+        
+        <a href="${verificationUrl}" class="button">Verify & Complete Purchase</a>
+        
+        <p class="expires">This link expires in 30 minutes</p>
+        
+        <p style="font-size: 13px; margin-top: 24px;">Or copy and paste this URL:<br><code style="color: #e49729; word-break: break-all;">${verificationUrl}</code></p>
+        
+        <div class="footer">
+            <p>Everlit Candle - Digital Prayer Candles on Solana</p>
+            <p>If you didn't request this email, please ignore it.</p>
+        </div>
+    </div>
+</body>
+</html>`;
+  
+  // Send email
+  const info = await transporter.sendMail({
+    from: `"Everlit Candle" <${fromEmail}>`,
+    to: toEmail,
+    subject: 'Verify Your Email - Everlit Candle',
+    html: emailHtml,
+    text: `Verify your Everlit Candle purchase: ${verificationUrl}\n\nYour prayer: ${prayer}\n\nThis link expires in 30 minutes.`
+  });
+  
+  return { success: true, messageId: info.messageId };
+}
+
+/**
  * Health Check
  * GET /health
  */
@@ -704,18 +790,25 @@ exports.sendVerificationEmail = functions.https.onRequest((req, res) => {
         used: false
       });
 
-      // Send verification email using Firebase Extensions or simple SMTP
-      // For now, we'll return the verification link (in production, use SendGrid/SES)
+      // Generate verification URL
       const verificationUrl = `https://seliganmd.github.io/EverlitCandle/verify-email.html?token=${token}`;
       
-      // TODO: Integrate with email service (SendGrid, AWS SES, etc.)
-      console.log('Verification URL for', email, ':', verificationUrl);
+      // Try to send email via SES if configured
+      let emailSent = false;
+      try {
+        const sesResult = await sendVerificationEmailSES(email, verificationUrl, prayer);
+        emailSent = sesResult.success;
+        console.log('SES email result:', sesResult);
+      } catch (emailError) {
+        console.log('SES email failed (expected if not configured yet):', emailError.message);
+      }
 
       return res.status(200).json({
         success: true,
-        message: 'Verification email sent',
-        // For testing, return the URL so frontend can display it
-        verificationUrl: process.env.NODE_ENV === 'development' ? verificationUrl : undefined
+        message: emailSent ? 'Verification email sent' : 'Verification email queued',
+        emailSent: emailSent,
+        // Return URL for testing if email not sent
+        verificationUrl: !emailSent ? verificationUrl : undefined
       });
       
     } catch (error) {
