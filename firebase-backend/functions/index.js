@@ -670,3 +670,55 @@ exports.checkCandleStatus = functions.https.onRequest((req, res) => {
     }
   });
 });
+
+/**
+ * Fix Candle Status (Admin only - manually mark as minted)
+ * POST /fixCandleStatus
+ * Body: { candleId: string, mintAddress: string, signature: string }
+ */
+exports.fixCandleStatus = functions.https.onRequest((req, res) => {
+  return corsHandler(req, res, async () => {
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    try {
+      const { candleId, mintAddress, signature } = req.body;
+      
+      if (!candleId || !mintAddress) {
+        return res.status(400).json({ error: 'candleId and mintAddress are required' });
+      }
+
+      // Fetch candle from Firestore
+      const candleDoc = await db.collection('candles').doc(candleId).get();
+      
+      if (!candleDoc.exists) {
+        return res.status(404).json({ error: 'Candle not found' });
+      }
+
+      // Update candle to minted status
+      await db.collection('candles').doc(candleId).update({
+        status: 'minted',
+        nftMintAddress: mintAddress,
+        nftSignature: signature || 'unknown',
+        nftMetadataUri: `https://us-central1-everlitcandle.cloudfunctions.net/nftMetadata?c=${candleId}`,
+        mintedAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        error: null
+      });
+
+      console.log(`Fixed candle ${candleId} to minted status with mint ${mintAddress}`);
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Candle status fixed',
+        candleId,
+        mintAddress
+      });
+      
+    } catch (error) {
+      console.error('Fix candle status failed:', error);
+      return res.status(500).json({ error: error.message });
+    }
+  });
+});
