@@ -366,6 +366,17 @@
                 <div class="candles-grid" id="candles-grid">
                     <!-- Candles loaded here -->
                 </div>
+                
+                <!-- Transfer NFT Section -->
+                <div id="transfer-section" style="margin-top: 48px; padding: 32px; background: var(--color-bg-surface); border-radius: 24px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                    <h3 style="font-family: var(--font-secondary); font-size: 24px; margin-bottom: 16px; text-align: center;">Claim Your NFT</h3>
+                    <p style="color: var(--color-text-secondary); text-align: center; margin-bottom: 24px; font-size: 14px;">Enter your Solana wallet address to receive your NFT directly in your wallet.</p>
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <input type="text" id="transfer-wallet" placeholder="Your Solana wallet address (e.g., F16SqWF... )" style="width: 100%; padding: 12px 16px; background: var(--color-bg-primary); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; font-size: 16px;">
+                    </div>
+                    <button class="btn btn-primary btn-large" onclick="transferToMyWallet()" id="transfer-btn" style="width: 100%;">Transfer NFT to My Wallet</button>
+                    <p id="transfer-status" style="margin-top: 16px; font-size: 14px; text-align: center; display: none;"></p>
+                </div>
             </div>
         </div>
     </main>
@@ -687,6 +698,74 @@
             } catch (error) {
                 console.error('Retry mint error:', error);
                 alert('Mint failed: ' + error.message);
+            }
+        }
+        
+        // Transfer NFT to user's wallet
+        async function transferToMyWallet() {
+            const walletInput = document.getElementById('transfer-wallet');
+            const walletAddress = walletInput.value.trim();
+            const statusEl = document.getElementById('transfer-status');
+            const btn = document.getElementById('transfer-btn');
+            
+            // Validate wallet address
+            if (!walletAddress || walletAddress.length < 32) {
+                statusEl.textContent = 'Please enter a valid Solana wallet address';
+                statusEl.style.color = '#ff6b6b';
+                statusEl.style.display = 'block';
+                return;
+            }
+            
+            // Get user's candles
+            const candles = window.userCandles || [];
+            const mintedCandles = candles.filter(c => c.status === 'minted' && c.nftMintAddress && !c.transferredTo);
+            
+            if (mintedCandles.length === 0) {
+                statusEl.textContent = 'No transferable candles found. Make sure your candle is minted.';
+                statusEl.style.color = '#ff6b6b';
+                statusEl.style.display = 'block';
+                return;
+            }
+            
+            // Use the first minted candle
+            const candle = mintedCandles[0];
+            
+            btn.disabled = true;
+            btn.textContent = 'Transferring...';
+            statusEl.textContent = 'Sending transaction...';
+            statusEl.style.color = 'var(--color-text-secondary)';
+            statusEl.style.display = 'block';
+            
+            try {
+                const API_BASE = 'https://us-central1-everlitcandle.cloudfunctions.net';
+                const response = await fetch(`${API_BASE}/transferNFT`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        candleId: candle.id,
+                        destinationWallet: walletAddress
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    statusEl.innerHTML = `Success! NFT transferred to your wallet. <a href="${data.explorerUrl}" target="_blank" style="color: var(--color-primary);">View on Solana</a>`;
+                    statusEl.style.color = '#51cf66';
+                    walletInput.value = '';
+                    // Reload candles to show transfer status
+                    const email = localStorage.getItem('userEmail');
+                    if (email) loadCandles(email);
+                } else {
+                    throw new Error(data.error || 'Transfer failed');
+                }
+            } catch (error) {
+                console.error('Transfer error:', error);
+                statusEl.textContent = 'Transfer failed: ' + error.message;
+                statusEl.style.color = '#ff6b6b';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Transfer NFT to My Wallet';
             }
         }
     </script>
