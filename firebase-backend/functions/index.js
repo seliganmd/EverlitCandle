@@ -722,3 +722,136 @@ exports.fixCandleStatus = functions.https.onRequest((req, res) => {
     }
   });
 });
+
+/**
+ * Transfer NFT to User Wallet
+ * POST /transferNFT
+ * Body: { candleId: string, destinationWallet: string }
+ * Transfers NFT from treasury to user's wallet
+ */
+exports.transferNFT = functions.https.onRequest((req, res) => {
+  return corsHandler(req, res, async () => {
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    try {
+      const { candleId, destinationWallet } = req.body;
+      
+      if (!candleId || !destinationWallet) {
+        return res.status(400).json({ error: 'candleId and destinationWallet are required' });
+      }
+
+      // Fetch candle from Firestore
+      const candleDoc = await db.collection('candles').doc(candleId).get();
+      
+      if (!candleDoc.exists) {
+        return res.status(404).json({ error: 'Candle not found' });
+      }
+      
+      const candleData = candleDoc.data();
+      
+      if (!candleData.nftMintAddress) {
+        return res.status(400).json({ error: 'Candle has no NFT mint address' });
+      }
+
+      // Get treasury key
+      const treasuryKey = functions.config().solana?.treasury_key;
+      if (!treasuryKey) {
+        return res.status(500).json({ error: 'Treasury not configured' });
+      }
+
+      // Import Solana modules
+      const { Connection, Keypair, PublicKey, Transaction } = require('@solana/web3.js');
+      const { 
+        getAssociatedTokenAddress,
+        createAssociatedTokenAccountInstruction,
+        createTransferInstruction,
+        TOKEN_PROGRAM_ID,
+        ASSOCIATED_TOKEN_PROGRAM_ID
+      } = require('@solana/spl-token');
+      const bs58 = require('bs58');
+
+      // Setup connection
+      const heliusApiKey = functions.config().helius?.api_key;
+      const rpcUrl = heliusApiKey 
+        ? `https://mainnet.helius-rpc.com/?api-key=***
+        : 'https://api.mainnet-beta.solana.com';
+      
+      const connection = new Connection(rpcUrl, 'confirmed');
+
+      // Load treasury keypair
+      const secretKey = bs58.decode(treasuryKey);
+      const treasuryKeypair = Keypair.fromSecretKey(secretKey);
+      const treasuryPubkey = treasuryKeypair.publicKey;
+
+      const mintPubkey = new PublicKey(candleData.nftMintAddress);
+      const destinationPubkey = new PublicKey(destinationWallet);
+
+      console.log(`Transferring NFT ${candleData.nftMintAddress} from ${treasuryPubkey.toBase58()} to ${destinationWallet}`);
+
+      // Get token accounts
+      const sourceTokenAccount = await getAssociatedTokenAddress(mintPubkey, treasuryPubkey);
+      const destinationTokenAccount = await getAssociatedTokenAddress(mintPubkey, destinationPubkey);
+
+      // Build transaction
+      const transaction = new Transaction();
+
+      // Check if destination token account exists
+      const destAccountInfo = await connection.getAccountInfo(destinationTokenAccount);
+      
+      if (!destAccountInfo) {
+        console.log('Creating destination token account...');
+        transaction.add(
+          createAssociatedTokenAccountInstruction(
+            treasuryPubkey,
+            destinationTokenAccount,
+            destinationPubkey,
+            mintPubkey,
+            TOKEN_PROGRAM_ID,
+            ASSOCIATED_TOKEN_PROGRAM_ID
+          )
+        );
+      }
+
+      // Transfer the NFT
+      transaction.add(
+        createTransferInstruction(
+          sourceTokenAccount,
+          destinationTokenAccount,
+          treasuryPubkey,
+          1,
+          [],
+          TOKEN_PROGRAM_ID
+        )
+      );
+
+      // Send transaction
+      console.log('Sending transaction...');
+      const signature = await connection.sendTransaction(transaction, [treasuryKeypair], {
+        commitment: 'confirmed'
+      });
+
+      console.log('Transfer successful:', signature);
+
+      // Update Firestore
+      await db.collection('candles').doc(candleId).update({
+        transferredTo: destinationWallet,
+        transferredAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+
+      return res.status(200).json({
+        success: true,
+        signature: signature,
+        mintAddress: candleData.nftMintAddress,
+        destination: destinationWallet,
+        explorerUrl: `https://explorer.solana.com/tx/${signature}`
+      });
+      
+    } catch (error) {
+      console.error('Transfer NFT failed:', error);
+      return res.status(500).json({ error: error.message });
+    }
+  });
+});
