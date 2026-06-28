@@ -672,6 +672,139 @@ exports.checkCandleStatus = functions.https.onRequest((req, res) => {
 });
 
 /**
+ * Send Email Verification for Checkout
+ * POST /sendVerificationEmail
+ * Body: { email: string, prayer: string, isPublic: boolean }
+ */
+exports.sendVerificationEmail = functions.https.onRequest((req, res) => {
+  return corsHandler(req, res, async () => {
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    try {
+      const { email, prayer, isPublic } = req.body;
+      
+      if (!email || !prayer) {
+        return res.status(400).json({ error: 'Email and prayer are required' });
+      }
+
+      // Generate verification token (JWT-like simple token)
+      const crypto = require('crypto');
+      const token = crypto.randomBytes(32).toString('hex');
+      const expiresAt = Date.now() + 30 * 60 * 1000; // 30 minutes
+
+      // Store verification data in Firestore
+      await db.collection('emailVerifications').doc(token).set({
+        email: email.toLowerCase().trim(),
+        prayer,
+        isPublic: isPublic !== false,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        expiresAt: new Date(expiresAt),
+        used: false
+      });
+
+      // Send verification email using Firebase Extensions or simple SMTP
+      // For now, we'll return the verification link (in production, use SendGrid/SES)
+      const verificationUrl = `https://seliganmd.github.io/EverlitCandle/verify-email.html?token=${token}`;
+      
+      // TODO: Integrate with email service (SendGrid, AWS SES, etc.)
+      console.log('Verification URL for', email, ':', verificationUrl);
+
+      return res.status(200).json({
+        success: true,
+        message: 'Verification email sent',
+        // For testing, return the URL so frontend can display it
+        verificationUrl: process.env.NODE_ENV === 'development' ? verificationUrl : undefined
+      });
+      
+    } catch (error) {
+      console.error('Send verification email failed:', error);
+      return res.status(500).json({ error: error.message });
+    }
+  });
+});
+
+/**
+ * Verify Email and Create Checkout Session
+ * GET /verifyEmail?token=xxx
+ * Verifies email token and redirects to Stripe checkout
+ */
+exports.verifyEmail = functions.https.onRequest((req, res) => {
+  return corsHandler(req, res, async () => {
+    if (req.method !== 'GET') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    try {
+      const { token } = req.query;
+      
+      if (!token) {
+        return res.status(400).json({ error: 'Token is required' });
+      }
+
+      // Get verification data
+      const verifyDoc = await db.collection('emailVerifications').doc(token).get();
+      
+      if (!verifyDoc.exists) {
+        return res.status(400).json({ error: 'Invalid or expired verification link' });
+      }
+      
+      const verifyData = verifyDoc.data();
+      
+      if (verifyData.used) {
+        return res.status(400).json({ error: 'This link has already been used' });
+      }
+      
+      if (verifyData.expiresAt.toMillis() < Date.now()) {
+        return res.status(400).json({ error: 'Verification link has expired' });
+      }
+
+      // Mark as used
+      await db.collection('emailVerifications').doc(token).update({
+        used: true,
+        usedAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+
+      // Create Stripe checkout session with verified email
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        customer_email: verifyData.email,
+        line_items: [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'Everlit Candle',
+              description: 'A unique digital prayer candle on Solana blockchain',
+              images: ['https://seliganmd.github.io/EverlitCandle/assets/logo.png'],
+            },
+            unit_amount: Math.round(NFT_PRICE_USD * 100),
+          },
+          quantity: 1,
+        }],
+        mode: 'payment',
+        success_url: `https://seliganmd.github.io/EverlitCandle/mycandles.html?verified_email=${encodeURIComponent(verifyData.email)}&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `https://seliganmd.github.io/EverlitCandle/?canceled=true`,
+        metadata: {
+          candleId: 'pending',
+          email: verifyData.email,
+          prayer: verifyData.prayer,
+          isPublic: String(verifyData.isPublic),
+          source: 'verified_email'
+        }
+      });
+
+      // Redirect to Stripe
+      return res.redirect(303, session.url);
+      
+    } catch (error) {
+      console.error('Email verification failed:', error);
+      return res.status(500).json({ error: error.message });
+    }
+  });
+});
+
+/**
  * Fix Candle Status (Admin only - manually mark as minted)
  * POST /fixCandleStatus
  * Body: { candleId: string, mintAddress: string, signature: string }

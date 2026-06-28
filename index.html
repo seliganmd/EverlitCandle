@@ -259,31 +259,54 @@
                 <button class="modal-close" data-action="close-modal">
                     <i class="ph ph-x"></i>
                 </button>
-                <h3 class="modal-title">Light Your Everlit Candle</h3>
-                <form class="checkout-form" id="checkout-form">
-                    <div class="form-group">
-                        <label for="email">Your Email</label>
-                        <input type="email" id="email" name="email" placeholder="you@example.com" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="prayer">Your Prayer Intention</label>
-                        <textarea id="prayer" name="prayer" placeholder="What are you praying for?" maxlength="500" rows="4"></textarea>
-                        <span class="char-count"><span id="char-count">0</span>/500</span>
-                    </div>
-                    <div class="form-group form-checkbox">
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="public" value="1" checked>
-                            <span>Display my candle on the Candle Wall (anonymous)</span>
-                        </label>
-                    </div>
-                    <div class="checkout-summary">
-                        <div class="checkout-price">
-                            <span class="price-amount">$7.00</span>
-                            <span class="price-note">One-time purchase</span>
+                
+                <!-- Step 1: Email & Prayer Form -->
+                <div id="checkout-step-1">
+                    <h3 class="modal-title">Light Your Everlit Candle</h3>
+                    <form class="checkout-form" id="checkout-form">
+                        <div class="form-group">
+                            <label for="email">Your Email</label>
+                            <input type="email" id="email" name="email" placeholder="you@example.com" required>
+                            <small style="color: var(--color-text-muted); font-size: 12px; display: block; margin-top: 4px;">We'll send a verification link to this email</small>
                         </div>
+                        <div class="form-group">
+                            <label for="prayer">Your Prayer Intention</label>
+                            <textarea id="prayer" name="prayer" placeholder="What are you praying for?" maxlength="500" rows="4"></textarea>
+                            <span class="char-count"><span id="char-count">0</span>/500</span>
+                        </div>
+                        <div class="form-group form-checkbox">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="public" value="1" checked>
+                                <span>Display my candle on the Candle Wall (anonymous)</span>
+                            </label>
+                        </div>
+                        <div class="checkout-summary">
+                            <div class="checkout-price">
+                                <span class="price-amount">$7.00</span>
+                                <span class="price-note">One-time purchase</span>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-large" id="checkout-submit" style="width: 100%;" onclick="handleCheckout()">Light My Candle</button>
+                    </form>
+                </div>
+                
+                <!-- Step 2: Verification Sent -->
+                <div id="checkout-step-2" style="display: none; text-align: center; padding: 24px 0;">
+                    <i class="ph ph-envelope" style="font-size: 64px; color: var(--color-primary); margin-bottom: 24px;"></i>
+                    <h3 class="modal-title" style="margin-bottom: 16px;">Check Your Email</h3>
+                    <p style="color: var(--color-text-secondary); margin-bottom: 24px; line-height: 1.6;">
+                        We've sent a verification link to <strong id="verify-email-display"></strong>.<br>
+                        Click the link in the email to complete your purchase.
+                    </p>
+                    <div style="background: rgba(228, 151, 41, 0.1); border-radius: 12px; padding: 16px; margin-bottom: 24px;">
+                        <p style="font-size: 14px; color: var(--color-text-secondary); margin: 0;">
+                            <i class="ph ph-info" style="margin-right: 8px;"></i>
+                            The link expires in 30 minutes
+                        </p>
                     </div>
-                    <button type="button" class="btn btn-primary btn-large" id="checkout-submit" style="width: 100%;" onclick="handleCheckout()">Light My Candle</button>
-                </form>
+                    <button class="btn btn-secondary" onclick="closeCheckoutModal()" style="margin-right: 12px;">Close</button>
+                    <button class="btn btn-primary" onclick="resendVerification()" id="resend-btn">Resend Email</button>
+                </div>
             </div>
         </div>
 
@@ -469,6 +492,98 @@
 
         // Handle checkout form submission
         async function handleCheckout() {
+            const email = document.getElementById('email').value;
+            const prayer = document.getElementById('prayer').value;
+            const isPublic = document.querySelector('input[name="public"]').checked;
+            const submitBtn = document.getElementById('checkout-submit');
+            
+            if (!email || !prayer) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending verification...';
+            
+            try {
+                // Step 1: Send verification email
+                const API_BASE = 'https://us-central1-everlitcandle.cloudfunctions.net';
+                const response = await fetch(`${API_BASE}/sendVerificationEmail`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email,
+                        prayer,
+                        isPublic
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Show verification sent screen
+                    document.getElementById('checkout-step-1').style.display = 'none';
+                    document.getElementById('checkout-step-2').style.display = 'block';
+                    document.getElementById('verify-email-display').textContent = email;
+                } else {
+                    throw new Error(data.error || 'Failed to send verification email');
+                }
+                
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert(error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Light My Candle';
+            }
+        }
+        
+        // Resend verification email
+        async function resendVerification() {
+            const email = document.getElementById('email').value;
+            const prayer = document.getElementById('prayer').value;
+            const isPublic = document.querySelector('input[name="public"]').checked;
+            const btn = document.getElementById('resend-btn');
+            
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+            
+            try {
+                const API_BASE = 'https://us-central1-everlitcandle.cloudfunctions.net';
+                const response = await fetch(`${API_BASE}/sendVerificationEmail`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, prayer, isPublic })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Verification email resent!');
+                } else {
+                    throw new Error(data.error || 'Failed to resend');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Resend Email';
+            }
+        }
+        
+        // Close checkout modal
+        function closeCheckoutModal() {
+            const modal = document.getElementById('checkout-modal');
+            modal.style.display = 'none';
+            // Reset to step 1
+            document.getElementById('checkout-step-1').style.display = 'block';
+            document.getElementById('checkout-step-2').style.display = 'none';
+            document.getElementById('checkout-submit').disabled = false;
+            document.getElementById('checkout-submit').textContent = 'Light My Candle';
+        }
+
+        // Handle old checkout form submission (legacy)
+        async function handleCheckoutLegacy() {
             const email = document.getElementById('email').value;
             const prayer = document.getElementById('prayer').value;
             const isPublic = document.querySelector('input[name="public"]').checked;
