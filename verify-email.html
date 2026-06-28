@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email - Everlit Candle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        .verify-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+        }
+        .verify-content {
+            max-width: 480px;
+        }
+        .verify-icon {
+            font-size: 64px;
+            color: var(--color-primary);
+            margin-bottom: 24px;
+        }
+        .verify-title {
+            font-family: var(--font-secondary);
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+        .verify-message {
+            color: var(--color-text-secondary);
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        .verify-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(228, 151, 41, 0.3);
+            border-top-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .verify-success {
+            color: #51cf66;
+        }
+        .verify-error {
+            color: #ff6b6b;
+        }
+    </style>
+</head>
+<body>
+    <div class="verify-container">
+        <div class="verify-content">
+            <div id="loading-state" class="verify-loading">
+                <div class="spinner"></div>
+                <p>Verifying your email...</p>
+            </div>
+            
+            <div id="success-state" style="display: none;">
+                <i class="ph ph-check-circle verify-icon verify-success"></i>
+                <h1 class="verify-title">Email Verified!</h1>
+                <p class="verify-message">
+                    Your email has been verified successfully.<br>
+                    Redirecting you to complete your purchase...
+                </p>
+            </div>
+            
+            <div id="error-state" style="display: none;">
+                <i class="ph ph-x-circle verify-icon verify-error"></i>
+                <h1 class="verify-title">Verification Failed</h1>
+                <p class="verify-message" id="error-message">
+                    The verification link is invalid or has expired.
+                </p>
+                <a href="/" class="btn btn-primary">Return to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function verifyEmail() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            
+            if (!token) {
+                showError('No verification token found in URL.');
+                return;
+            }
+            
+            try {
+                // Call the verify endpoint which will redirect to Stripe
+                window.location.href = `https://us-central1-everlitcandle.cloudfunctions.net/verifyEmail?token=${encodeURIComponent(token)}`;
+            } catch (error) {
+                console.error('Verification error:', error);
+                showError('An error occurred during verification. Please try again.');
+            }
+        }
+        
+        function showError(message) {
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('error-state').style.display = 'block';
+            document.getElementById('error-message').textContent = message;
+        }
+        
+        // Start verification immediately
+        verifyEmail();
+    </script>
+</body>
+</html>
