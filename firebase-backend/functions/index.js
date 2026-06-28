@@ -766,6 +766,23 @@ exports.verifyEmail = functions.https.onRequest((req, res) => {
         usedAt: admin.firestore.FieldValue.serverTimestamp()
       });
 
+      // Create candle document first (so webhook can find it)
+      const normalizedEmail = verifyData.email.toLowerCase().trim();
+      const candleRef = db.collection('candles').doc();
+      const candleData = {
+        id: candleRef.id,
+        email: normalizedEmail,
+        prayer: verifyData.prayer,
+        isPublic: verifyData.isPublic,
+        status: 'pending_payment',
+        stripeSessionId: null, // Will be updated after checkout created
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      };
+
+      await candleRef.set(candleData);
+      console.log('Created pending candle:', candleRef.id);
+
       // Create Stripe checkout session with verified email
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
@@ -786,12 +803,18 @@ exports.verifyEmail = functions.https.onRequest((req, res) => {
         success_url: `https://seliganmd.github.io/EverlitCandle/mycandles.html?verified_email=${encodeURIComponent(verifyData.email)}&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `https://seliganmd.github.io/EverlitCandle/?canceled=true`,
         metadata: {
-          candleId: 'pending',
+          candleId: candleRef.id,
           email: verifyData.email,
           prayer: verifyData.prayer,
           isPublic: String(verifyData.isPublic),
           source: 'verified_email'
         }
+      });
+
+      // Update candle with session ID
+      await candleRef.update({
+        stripeSessionId: session.id,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp()
       });
 
       // Redirect to Stripe
