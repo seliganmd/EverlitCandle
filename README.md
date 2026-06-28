@@ -82,3 +82,4 @@ support@everlitcandle.com
 ---
 
 © 2026 Everlit Candle
+# Deployment trigger Sat Jun 27 11:53:53 PM PDT 2026
