@@ -775,7 +775,7 @@ exports.transferNFT = functions.https.onRequest((req, res) => {
       // Setup connection
       const heliusApiKey = functions.config().helius?.api_key;
       const rpcUrl = heliusApiKey 
-        ? `https://mainnet.helius-rpc.com/?api-key=***
+        ? `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`
         : 'https://api.mainnet-beta.solana.com';
       
       const connection = new Connection(rpcUrl, 'confirmed');
