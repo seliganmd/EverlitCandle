@@ -788,7 +788,7 @@ exports.transferNFT = functions.https.onRequest((req, res) => {
       const mintPubkey = new PublicKey(candleData.nftMintAddress);
       const destinationPubkey = new PublicKey(destinationWallet);
 
-      console.log(`Transferring NFT ${candleData.nftMintAddress} from ${treasuryPubkey.toBase58()} to ${destinationWallet}`);
+      console.log('Transferring NFT ' + candleData.nftMintAddress + ' from ' + treasuryPubkey.toBase58() + ' to ' + destinationWallet);
 
       // Get token accounts
       const sourceTokenAccount = await getAssociatedTokenAddress(mintPubkey, treasuryPubkey);
