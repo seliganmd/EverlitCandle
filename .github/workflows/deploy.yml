@@ -24,14 +24,19 @@ jobs:
     - name: Setup Google Credentials
       run: |
         echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}' > /tmp/service-account.json
+        export GOOGLE_APPLICATION_CREDENTIALS=/tmp/service-account.json
         echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/service-account.json" >> $GITHUB_ENV
 
     - name: Install dependencies
       working-directory: firebase-backend/functions
       run: npm ci
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: /tmp/service-account.json
 
     - name: Deploy Firebase Functions
       working-directory: firebase-backend
-      run: firebase deploy --only functions
+      run: |
+        export GOOGLE_APPLICATION_CREDENTIALS=/tmp/service-account.json
+        npx firebase deploy --only functions
       env:
         GOOGLE_APPLICATION_CREDENTIALS: /tmp/service-account.json
