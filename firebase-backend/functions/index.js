@@ -556,7 +556,7 @@ exports.nftMetadata = functions.https.onRequest((req, res) => {
         description: `A prayer candle lit on the Solana blockchain.\n\nPrayer: "${candleData.prayer}"\n\nLit by: ${candleData.email}\nDate: ${candleData.createdAt?.toDate?.() ? candleData.createdAt.toDate().toISOString() : new Date().toISOString()}`,
         image: 'https://seliganmd.github.io/EverlitCandle/assets/EverlitCandle_animated.gif',
         attributes: [
-          { trait_type: 'Prayer', value: candleData.prayer?.slice(0, 100) + (candleData.prayer?.length > 100 ? '...' : '') },
+          { trait_type: 'Prayer', value: candleData.prayer },
           { trait_type: 'Lit By', value: candleData.email },
           { trait_type: 'Lit Date', value: candleData.createdAt?.toDate?.() ? candleData.createdAt.toDate().toISOString() : new Date().toISOString() },
           { trait_type: 'Visibility', value: candleData.isPublic ? 'Public' : 'Private' },
