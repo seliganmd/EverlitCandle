@@ -3,143 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Refund Policy - Everlit Candle</title>
+    <title>Refund Policy — Everlit Candle</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/styles.css">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        .legal-content { max-width: 720px; margin: 0 auto; padding: 120px 24px 80px; }
+        .legal-content h1 { margin-bottom: 8px; }
+        .last-updated { color: var(--text-muted); margin-bottom: 48px; }
+        .legal-content h2 { margin-top: 48px; margin-bottom: 16px; font-size: 1.5rem; }
+        .legal-content p { margin-bottom: 16px; }
+        .legal-content ul { margin-bottom: 16px; padding-left: 24px; }
+        .legal-content li { margin-bottom: 8px; color: var(--text-secondary); }
+
+        /* Mobile menu styles */
+        @media (max-width: 767px) {
+            .nav {
+                display: none;
+                position: fixed;
+                top: 80px;
+                left: 0;
+                right: 0;
+                height: calc(100vh - 80px);
+                background: #141311;
+                flex-direction: column;
+                align-items: flex-start;
+                justify-content: flex-start;
+                padding: 40px 24px;
+                gap: 8px;
+                z-index: 98;
+            }
+            .nav.active {
+                display: flex;
+            }
+            .nav a {
+                font-size: 16px;
+                font-weight: 400;
+                padding: 12px 0;
+                color: #ffffff;
+                text-align: left;
+                border: none;
+                letter-spacing: 0;
+                transition: none;
+            }
+            .hamburger {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                gap: 6px;
+                width: 40px;
+                height: 40px;
+                background: transparent;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 8px;
+                cursor: pointer;
+                padding: 8px;
+                z-index: 101;
+            }
+            .hamburger span {
+                display: block;
+                width: 22px;
+                height: 2px;
+                background: #fff;
+                border-radius: 2px;
+                margin: 0 auto;
+            }
+        }
+        @media (min-width: 768px) {
+            .hamburger {
+                display: none;
+            }
+            .nav {
+                display: flex !important;
+                position: static;
+                height: auto;
+                background: transparent;
+                flex-direction: row;
+                padding: 0;
+                gap: 32px;
+            }
+        }
+    </style>
 </head>
 <body>
     <header class="header">
-        <div class="header-container">
-            <a href="../index.html" class="logo">
-                <span class="logo-icon">🕯️</span>
-                <span class="logo-text">Everlit Candle</span>
+        <div class="container">
+            <a href="/" class="logo">
+                <img src="../assets/logo.png" alt="Everlit Candle" width="40" height="40">
+                <span>Everlit Candle</span>
             </a>
-            <nav class="nav">
-                <a href="../index.html" class="nav-link">Home</a>
-                <a href="../wall.html" class="nav-link">Candle Wall</a>
-                <a href="../mycandles.html" class="nav-link">My Candles</a>
-                <a href="../guide.html" class="nav-link">Wallet Guide</a>
-            </nav>
-            <button class="btn btn-primary" onclick="openCheckoutModal()">Light My Candle</button>
-            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
-                <i class="ph ph-list"></i>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
             </button>
-        </div>
-        <div class="mobile-menu" id="mobile-menu">
-            <a href="../index.html" class="mobile-nav-link">Home</a>
-            <a href="../wall.html" class="mobile-nav-link">Candle Wall</a>
-            <a href="../mycandles.html" class="mobile-nav-link">My Candles</a>
-            <a href="../guide.html" class="mobile-nav-link">Wallet Guide</a>
-            <button class="btn btn-primary mobile-cta" onclick="openCheckoutModal()">Light My Candle</button>
+            <nav class="nav" id="nav">
+                <a href="/">Home</a>
+                <a href="/mycandles.html">My Candles</a>
+                <a href="/wall.html">Candle Wall</a>
+                <a href="/guide.html">Wallet Guide</a>
+                <a href="/#faq">FAQ</a>
+                <a href="/#footer">Legal</a>
+            </nav>
         </div>
     </header>
 
-    <main class="legal-page">
-        <div class="legal-container">
-            <h1 class="legal-title">Refund Policy</h1>
-            <p class="legal-updated">Last Updated: June 30, 2026</p>
+    <main class="legal-content">
+        <h1>Refund Policy</h1>
+        <p class="last-updated">Last Updated: June 2026</p>
 
-            <section class="legal-section">
-                <h2>1. Overview</h2>
-                <p>Everlit Candle offers unique digital prayer candles as Non-Fungible Tokens (NFTs) on the Solana blockchain. Due to the immutable nature of blockchain technology, all sales are final once the NFT minting process has begun.</p>
-            </section>
+        <p>Welcome to Everlit Candle. This Refund Policy explains our no-refund policy due to the immediate and permanent nature of blockchain-based digital collectibles.</p>
 
-            <section class="legal-section">
-                <h2>2. No Refunds Policy</h2>
-                <p><strong>All purchases are final and non-refundable.</strong></p>
-                <p>Once you complete your purchase:</p>
-                <ul>
-                    <li>Your NFT is immediately minted to the Solana blockchain</li>
-                    <li>The transaction is permanently recorded and cannot be reversed</li>
-                    <li>The prayer intention and metadata are permanently stored</li>
-                    <li>The digital candle becomes your permanent digital asset</li>
-                </ul>
-            </section>
+        <h2>1. Overview</h2>
+        <p>Everlit Candle offers unique digital prayer candles as Non-Fungible Tokens (NFTs) on the Solana blockchain. Due to the immutable nature of blockchain technology, all sales are final once the NFT minting process has begun.</p>
 
-            <section class="legal-section">
-                <h2>3. Why No Refunds?</h2>
-                <p>Blockchain technology ensures transparency and permanence, but also means:</p>
-                <ul>
-                    <li><strong>Immutable Records:</strong> Once minted, an NFT cannot be "unminted" or deleted from the blockchain</li>
-                    <li><strong>Irreversible Transactions:</strong> Blockchain transactions are permanent and cannot be reversed</li>
-                    <li><strong>Network Fees:</strong> Gas fees and minting costs are paid to the Solana network and cannot be recovered</li>
-                    <li><strong>Digital Asset Delivery:</strong> The NFT is delivered instantly upon payment completion</li>
-                </ul>
-            </section>
+        <h2>2. No Refunds Policy</h2>
+        <p><strong>All purchases are final and non-refundable.</strong></p>
+        <p>Once you complete your purchase:</p>
+        <ul>
+            <li>Your NFT is immediately minted to the Solana blockchain</li>
+            <li>The transaction is permanently recorded and cannot be reversed</li>
+            <li>The prayer intention and metadata are permanently stored</li>
+            <li>The digital candle becomes your permanent digital asset</li>
+        </ul>
 
-            <section class="legal-section">
-                <h2>4. Before You Purchase</h2>
-                <p>We encourage you to verify all details before completing your purchase:</p>
-                <ul>
-                    <li>Review your prayer intention for accuracy</li>
-                    <li>Confirm your email address is correct</li>
-                    <li>Understand that you are purchasing a permanent digital asset</li>
-                    <li>Verify your payment information</li>
-                </ul>
-            </section>
+        <h2>3. Why No Refunds?</h2>
+        <p>Blockchain technology ensures transparency and permanence, but also means:</p>
+        <ul>
+            <li><strong>Immutable Records:</strong> Once minted, an NFT cannot be "unminted" or deleted from the blockchain</li>
+            <li><strong>Irreversible Transactions:</strong> Blockchain transactions are permanent and cannot be reversed</li>
+            <li><strong>Network Fees:</strong> Gas fees and minting costs are paid to the Solana network and cannot be recovered</li>
+            <li><strong>Digital Asset Delivery:</strong> The NFT is delivered instantly upon payment completion</li>
+        </ul>
 
-            <section class="legal-section">
-                <h2>5. Technical Issues</h2>
-                <p>If you experience technical issues during purchase:</p>
-                <ul>
-                    <li>Contact us immediately at <a href="mailto:support@everlitcandle.com">support@everlitcandle.com</a></li>
-                    <li>Provide your transaction details and email address</li>
-                    <li>We will investigate and assist with any technical problems</li>
-                </ul>
-                <p>Note: Technical support does not constitute grounds for refunds, but we will make reasonable efforts to resolve any system errors.</p>
-            </section>
+        <h2>4. Before You Purchase</h2>
+        <p>We encourage you to verify all details before completing your purchase:</p>
+        <ul>
+            <li>Review your prayer intention for accuracy</li>
+            <li>Confirm your email address is correct</li>
+            <li>Understand that you are purchasing a permanent digital asset</li>
+            <li>Verify your payment information</li>
+        </ul>
 
-            <section class="legal-section">
-                <h2>6. Unauthorized Transactions</h2>
-                <p>If you believe your payment method was used fraudulently:</p>
-                <ul>
-                    <li>Contact your payment provider immediately</li>
-                    <li>Notify us at <a href="mailto:support@everlitcandle.com">support@everlitcandle.com</a></li>
-                    <li>We will cooperate with any investigation</li>
-                </ul>
-            </section>
+        <h2>5. Technical Issues</h2>
+        <p>If you experience technical issues during purchase:</p>
+        <ul>
+            <li>Contact us immediately at support@everlitcandle.com</li>
+            <li>Provide your transaction details and email address</li>
+            <li>We will investigate and assist with any technical problems</li>
+        </ul>
+        <p>Note: Technical support does not constitute grounds for refunds, but we will make reasonable efforts to resolve any system errors.</p>
 
-            <section class="legal-section">
-                <h2>7. Contact Us</h2>
-                <p>For questions about this Refund Policy, contact:</p>
-                <p><strong>Email:</strong> <a href="mailto:support@everlitcandle.com">support@everlitcandle.com</a></p>
-            </section>
+        <h2>6. Unauthorized Transactions</h2>
+        <p>If you believe your payment method was used fraudulently:</p>
+        <ul>
+            <li>Contact your payment provider immediately</li>
+            <li>Notify us at support@everlitcandle.com</li>
+            <li>We will cooperate with any investigation</li>
+        </ul>
 
-            <div class="legal-footer">
-                <a href="terms.html" class="legal-link">Terms of Service</a>
-                <a href="privacy.html" class="legal-link">Privacy Policy</a>
-                <a href="nft-disclosure.html" class="legal-link">NFT Disclosure</a>
-            </div>
-        </div>
+        <h2>7. Contact Us</h2>
+        <p>For questions about this Refund Policy, contact: support@everlitcandle.com</p>
     </main>
 
     <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-brand">
-                <span class="logo-icon">🕯️</span>
-                <span class="logo-text">Everlit Candle</span>
+        <div class="container">
+            <div class="footer-content">
+                <p class="footer-disclaimer">Everlit Candle is a digital space for prayer, remembrance, and reflection. Content shared through candles represents personal expressions and is not professional advice of any kind.</p>
+                <div class="footer-links">
+                    <a href="terms.html">Terms of Service</a>
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="nft-disclosure.html">NFT Disclosure</a>
+                    <a href="refund-policy.html">Refund Policy</a>
+                </div>
+                <p class="footer-copyright">© 2026 Everlit Candle</p>
             </div>
-            <div class="footer-links">
-                <a href="terms.html">Terms</a>
-                <a href="privacy.html">Privacy</a>
-                <a href="refund-policy.html">Refund Policy</a>
-                <a href="nft-disclosure.html">NFT Disclosure</a>
-            </div>
-            <p class="footer-copyright">© 2026 Everlit Candle. All rights reserved.</p>
         </div>
     </footer>
 
     <script>
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('open');
-        }
+        // Mobile menu toggle
+        const hamburger = document.getElementById('hamburger');
+        const nav = document.getElementById('nav');
 
-        function openCheckoutModal() {
-            window.location.href = '../index.html#checkout';
+        if (hamburger && nav) {
+            hamburger.addEventListener('click', () => {
+                nav.classList.toggle('active');
+            });
         }
     </script>
 </body>
